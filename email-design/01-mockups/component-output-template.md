@@ -29,6 +29,24 @@ critical rendering or accessibility notes.>
 |---|---|---|---|---|
 | `{{variable_name}}` | <string \| hex \| px \| url \| boolean> | <Yes \| No> | <value or —> | <what it controls> |
 
+### JSON Schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "<Component Name>",
+  "type": "object",
+  "required": ["<required_variable>"],
+  "properties": {
+    "<variable_name>": {
+      "type": "<string | number | boolean>",
+      "description": "<what it controls>",
+      "default": "<value — omit this key if no default>"
+    }
+  }
+}
+```
+
 ---
 
 ## HTML

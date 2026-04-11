@@ -25,6 +25,55 @@ The primary call-to-action button. Designed as a bulletproof HTML button
 | `border_radius` | px | No | `4px` | Corner rounding |
 | `font_size` | px | No | `16px` | Label font size |
 
+### JSON Schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CTA Button",
+  "type": "object",
+  "required": ["label", "url"],
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "Button text (e.g. \"Shop Now\")"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Destination URL"
+    },
+    "bg_color": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$",
+      "default": "#000000",
+      "description": "Button background color"
+    },
+    "text_color": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$",
+      "default": "#ffffff",
+      "description": "Button label color"
+    },
+    "width": {
+      "type": "string",
+      "default": "200px",
+      "description": "Button width (px or %)"
+    },
+    "border_radius": {
+      "type": "string",
+      "default": "4px",
+      "description": "Corner rounding"
+    },
+    "font_size": {
+      "type": "string",
+      "default": "16px",
+      "description": "Label font size"
+    }
+  }
+}
+```
+
 ---
 
 ## HTML
