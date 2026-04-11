@@ -10,16 +10,16 @@ from concept to component to full page.
 
 ```
 email-design/
-├── 01-mockups/       # Phase 1 — Layout blueprints and visual structure
+├── 01-mockups/       # Phase 1 — Design parsing workflow (PNG / Figma → components)
 ├── 02-components/    # Phase 2 — Individual HTML components with schemas
 └── 03-pages/         # Phase 3 — Full email templates assembled from components
 ```
 
 ### Phase 1 · Mockups
-High-level layout concepts defined in plain language and ASCII wireframes.
-No code. Describes the spatial structure, content zones, and reading flow of
-an email layout pattern. A mockup is a reusable blueprint — not a specific
-campaign.
+An input processing workflow, not a static library. A PNG screenshot or Figma
+file is provided as input. The mockup skill analyzes the design, identifies
+discrete components, and writes new `.md` files into `02-components/` — one
+file per component. See `01-mockups/parsing-guide.md` for full instructions.
 
 ### Phase 2 · Components
 The building blocks. Each file documents one discrete email element:
@@ -35,8 +35,9 @@ order, and includes the complete assembled HTML.
 
 ## How a Skill Uses This Folder
 
-1. **Start in `01-mockups/`** to choose or reference a layout pattern.
-2. **Pull components from `02-components/`** to fill the layout zones.
+1. **To extract components from a design:** provide a PNG or Figma link and
+   follow `01-mockups/parsing-guide.md`. Output goes to `02-components/`.
+2. **To build an email:** pull components from `02-components/` and assemble them.
 3. **Check `03-pages/`** for existing templates before building a new one.
 4. **Save new templates back to `03-pages/`** so they join the shared library.
 
