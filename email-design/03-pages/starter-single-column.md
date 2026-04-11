@@ -1,6 +1,6 @@
 # Page: Starter Single Column
 
-**Mockup:** `01-mockups/single-column.md`  
+**Mockup:** single-column  
 **Status:** Template (fill in variables before sending)
 
 ---
@@ -9,11 +9,11 @@
 
 | Order | Component | File |
 |---|---|---|
-| 1 | Header | `02-components/header.md` |
-| 2 | Hero Banner | `02-components/hero-banner.md` |
-| 3 | Text Block | `02-components/text-block.md` |
-| 4 | CTA Button | `02-components/cta-button.md` |
-| 5 | Footer | `02-components/footer.md` |
+| 1 | Header | `02-components/header/` |
+| 2 | Hero Banner | `02-components/hero-banner/` |
+| 3 | Text Block | `02-components/text-block/` |
+| 4 | CTA Button | `02-components/cta-button/` |
+| 5 | Footer | `02-components/footer/` |
 
 ---
 
