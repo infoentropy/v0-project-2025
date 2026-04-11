@@ -1,15 +1,19 @@
 # CLAUDE.md
 
-This file provides guidance to AI assistants (Claude and others) working in this repository.
+This file explains the purpose, structure, and conventions of this repository
+to any Claude skill or AI assistant that reads from it.
 
 ---
 
-## Project Overview
+## Purpose
 
-**Repository:** `infoentropy/v0-project-2025`
-**Stack:** Next.js 15 (App Router) · TypeScript · Tailwind CSS · shadcn/ui
+This repository is a **shared document library** for Claude skills. Each folder
+corresponds to a distinct skill domain. Documents stored here are the source of
+truth that skills pull from to do their work — brand voice, templates,
+strategies, copy examples, and orchestration logic all live here.
 
-This project was bootstrapped with [v0.dev](https://v0.dev), Vercel's AI-powered UI generation tool. It follows the conventions of a modern Next.js App Router application with server components, server actions, and the shadcn/ui component library.
+Add, update, or retire documents in the appropriate folder as the team's
+thinking evolves. Skills always reflect whatever is currently in this repo.
 
 ---
 
@@ -17,249 +21,107 @@ This project was bootstrapped with [v0.dev](https://v0.dev), Vercel's AI-powered
 
 ```
 .
-├── app/                    # Next.js App Router pages and layouts
-│   ├── layout.tsx          # Root layout (fonts, global providers)
-│   ├── page.tsx            # Home page (route: /)
-│   ├── globals.css         # Global styles and Tailwind base/theme tokens
-│   └── (routes)/           # Additional route segments
-├── components/             # Reusable React components
-│   └── ui/                 # shadcn/ui primitives (auto-generated, do not edit manually)
-├── lib/                    # Shared utilities and helpers
-│   └── utils.ts            # cn() helper and other utilities
-├── hooks/                  # Custom React hooks
-├── public/                 # Static assets
-├── .env.local              # Local environment variables (never commit)
-├── .env.example            # Template for required env vars (commit this)
-├── components.json         # shadcn/ui configuration
-├── next.config.ts          # Next.js configuration
-├── tailwind.config.ts      # Tailwind CSS configuration
-├── tsconfig.json           # TypeScript configuration
-└── package.json            # Dependencies and scripts
+├── campaign-strategy/       # Strategic briefs, audience frameworks, goals
+├── email-design/            # Layout templates, design guidelines, component patterns
+├── copywriting-archive/     # Approved copy examples, tone guides, swipe files
+├── campaign-orchestration/  # Workflow definitions, sequencing rules, channel logic
+└── CLAUDE.md                # This file
 ```
-
-> Note: This structure reflects the expected layout once files are added. Adapt this section as the project grows.
 
 ---
 
-## Tech Stack
+## Folder Purposes
 
-| Layer | Technology |
+### `campaign-strategy/`
+Documents that define the *why* and *what* of campaigns.
+
+- Target audience personas and segmentation rules
+- Campaign goals and success metrics
+- Messaging hierarchies (primary, secondary, tertiary messages)
+- Seasonal or product-launch strategy briefs
+- Competitive positioning notes
+
+### `email-design/`
+Documents that govern the *look and feel* of emails.
+
+- Master layout templates (single column, two column, hero + text, etc.)
+- Brand color palette, typography, and spacing rules
+- Header and footer standards
+- CTA button styles and placement guidelines
+- Mobile responsiveness rules
+- Dark mode considerations
+
+### `copywriting-archive/`
+A reference library of approved, high-performing copy.
+
+- Subject line swipe files (organized by goal: open rate, re-engagement, etc.)
+- Body copy examples by tone (urgent, educational, conversational, etc.)
+- Brand voice and tone guidelines
+- Words/phrases to avoid
+- Legal or compliance copy requirements
+
+### `campaign-orchestration/`
+Documents that define *how* campaigns run end-to-end.
+
+- Send sequence logic (triggers, delays, branching conditions)
+- Channel priority rules (email vs. SMS vs. push)
+- Suppression and frequency capping rules
+- A/B test configuration standards
+- Integration touchpoints with other tools or platforms
+
+---
+
+## File Conventions
+
+- **Format:** Prefer Markdown (`.md`) for all documents. Use plain text (`.txt`)
+  only when importing raw copy that must stay unformatted.
+- **Naming:** Use `kebab-case` for all file names.
+  - Good: `welcome-series-strategy.md`, `q4-subject-line-swipes.md`
+  - Avoid: `Welcome Series Strategy.docx`, `copy v3 FINAL.txt`
+- **One topic per file.** Don't bundle unrelated content into a single document.
+- **Dates in names only when version matters:** `brand-voice-guide.md` is
+  preferred over `brand-voice-guide-2025.md` unless you intentionally maintain
+  versioned snapshots.
+
+---
+
+## How Skills Use This Repo
+
+Each Claude skill is scoped to one or more folders:
+
+| Skill | Primary Folder(s) |
 |---|---|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript (strict mode) |
-| Styling | Tailwind CSS v3/v4 |
-| UI Components | shadcn/ui |
-| Icons | lucide-react |
-| Fonts | Geist (via `next/font`) |
-| Package Manager | npm (or pnpm if `pnpm-lock.yaml` is present) |
-| Linting | ESLint (Next.js config) |
-| Formatting | Prettier (if `.prettierrc` exists) |
+| Campaign Strategy | `campaign-strategy/` |
+| Email Design | `email-design/` |
+| Copywriting | `copywriting-archive/` |
+| Campaign Orchestration | `campaign-orchestration/` |
+
+Skills read the documents in their folder(s) to inform their outputs. When a
+skill produces something new (a strategy brief, a copy block, a workflow), the
+result should be saved back into the appropriate folder so it becomes part of
+the shared knowledge base.
 
 ---
 
-## Development Workflows
+## Updating Documents
 
-### Install dependencies
-
-```bash
-npm install
-# or
-pnpm install
-```
-
-### Start dev server
-
-```bash
-npm run dev
-```
-
-The app runs at `http://localhost:3000`.
-
-### Build for production
-
-```bash
-npm run build
-npm run start
-```
-
-### Lint
-
-```bash
-npm run lint
-```
-
-### Type-check
-
-```bash
-npx tsc --noEmit
-```
-
----
-
-## Adding shadcn/ui Components
-
-Use the CLI — never copy-paste components manually into `components/ui/`:
-
-```bash
-npx shadcn@latest add <component-name>
-# examples:
-npx shadcn@latest add button
-npx shadcn@latest add dialog
-npx shadcn@latest add form
-```
-
-This respects `components.json` and places files correctly.
-
----
-
-## Key Conventions
-
-### TypeScript
-
-- Strict mode is enabled (`"strict": true` in `tsconfig.json`).
-- Prefer `interface` over `type` for object shapes.
-- Use explicit return types on exported functions.
-- Avoid `any`; use `unknown` with narrowing if the type is truly unknown.
-- Path aliases: `@/` maps to the project root (e.g., `import { cn } from "@/lib/utils"`).
-
-### React / Next.js
-
-- **Server Components by default.** Only add `"use client"` at the top of a file when the component needs browser APIs, event handlers, or React state/effects.
-- **Server Actions** live in `app/actions/` or colocated in route segments, marked with `"use server"`.
-- Fetch data in Server Components using `async/await` directly — no useEffect data fetching.
-- Use `next/image` for all images (`<Image>` not `<img>`).
-- Use `next/link` for all internal navigation (`<Link>` not `<a>`).
-- Prefer `loading.tsx` and `error.tsx` files for route-level loading and error states.
-
-### Styling
-
-- Use Tailwind utility classes exclusively. Avoid inline `style` props unless absolutely necessary.
-- Use the `cn()` helper from `@/lib/utils` to merge conditional classes:
-  ```ts
-  import { cn } from "@/lib/utils"
-  // cn("base-class", isActive && "active-class", className)
-  ```
-- CSS variables for design tokens are defined in `app/globals.css` (shadcn/ui convention).
-- Do not modify files in `components/ui/` directly — regenerate them with the shadcn CLI.
-
-### File Naming
-
-| Artifact | Convention |
-|---|---|
-| Components | `PascalCase.tsx` |
-| Pages / layouts | `page.tsx`, `layout.tsx` (Next.js required names) |
-| Hooks | `use-kebab-case.ts` |
-| Utilities | `kebab-case.ts` |
-| Server actions | `actions.ts` or `<feature>-actions.ts` |
-
-### Component Structure
-
-```tsx
-// 1. Imports
-import { type FC } from "react"
-import { cn } from "@/lib/utils"
-
-// 2. Types
-interface MyComponentProps {
-  title: string
-  className?: string
-}
-
-// 3. Component
-const MyComponent: FC<MyComponentProps> = ({ title, className }) => {
-  return (
-    <div className={cn("base-styles", className)}>
-      {title}
-    </div>
-  )
-}
-
-// 4. Export
-export default MyComponent
-// or: export { MyComponent }
-```
-
----
-
-## Environment Variables
-
-- Secrets and environment-specific values go in `.env.local` (gitignored).
-- Document every required variable in `.env.example` with placeholder values.
-- Client-side variables must be prefixed with `NEXT_PUBLIC_`.
-- Never commit real credentials — check `.gitignore` before staging files.
-
----
-
-## Git Workflow
-
-- The default branch is `main`.
-- Feature branches: `feature/<short-description>` or `fix/<short-description>`.
-- AI-generated branches use the prefix `claude/`.
-- Write clear, imperative commit messages: `Add hero section`, `Fix mobile nav overflow`, `Update shadcn button variant`.
-- Do not amend published commits; create new ones.
+- Edit documents directly in the appropriate folder.
+- Write clear, descriptive commit messages that say what changed and why:
+  - `Add Q3 re-engagement campaign brief`
+  - `Update brand voice guide — remove formal tone section`
+  - `Archive 2024 holiday subject line swipes`
+- Do not delete documents without confirming they are no longer referenced by
+  any active skill or campaign.
+- If a document is outdated but worth keeping for reference, move it to an
+  `_archive/` subfolder within the relevant folder rather than deleting it.
 
 ---
 
 ## What AI Assistants Should NOT Do
 
-- Do not add comments or JSDoc unless the logic is genuinely non-obvious.
-- Do not add `"use client"` to components that don't need it.
-- Do not edit files under `components/ui/` — use the shadcn CLI to regenerate.
-- Do not commit `.env.local` or any file containing real secrets.
-- Do not introduce `any` types to silence TypeScript errors — fix the root cause.
-- Do not add abstractions or utilities for one-off use cases.
-- Do not create new files when modifying an existing file is sufficient.
-- Do not use `<img>` or `<a>` — use `next/image` and `next/link`.
-- Do not add `eslint-disable` comments without a clear explanation of why the rule must be bypassed.
-- Do not push to `main` directly — always work on a feature branch.
-
----
-
-## Common Patterns
-
-### Data fetching in a Server Component
-
-```tsx
-// app/posts/page.tsx
-async function PostsPage() {
-  const posts = await fetch("https://api.example.com/posts").then(r => r.json())
-  return <PostList posts={posts} />
-}
-```
-
-### Server Action for form submission
-
-```ts
-// app/actions.ts
-"use server"
-
-import { revalidatePath } from "next/cache"
-
-export async function createPost(formData: FormData) {
-  const title = formData.get("title") as string
-  // ... persist to DB
-  revalidatePath("/posts")
-}
-```
-
-### Client component with state
-
-```tsx
-"use client"
-
-import { useState } from "react"
-
-export function Counter() {
-  const [count, setCount] = useState(0)
-  return <button onClick={() => setCount(c => c + 1)}>{count}</button>
-}
-```
-
----
-
-## References
-
-- [Next.js App Router docs](https://nextjs.org/docs/app)
-- [shadcn/ui docs](https://ui.shadcn.com)
-- [Tailwind CSS docs](https://tailwindcss.com/docs)
-- [v0.dev](https://v0.dev)
+- Do not invent facts about audience segments, brand rules, or channel logic
+  that are not documented here — flag the gap instead.
+- Do not merge unrelated documents together.
+- Do not rename files arbitrarily — naming changes break skill references.
+- Do not commit files containing PII, real customer data, or credentials.
+- Do not push to `main` directly — use a feature branch and get a review.
