@@ -5,6 +5,14 @@ Produces the artifacts needed to launch a campaign. Run subtasks in whatever ord
 **Inputs:** an approved brief in `campaign-strategy/`, and a copy JSON in `copywriting-archive/` for subtask 4.
 **Outputs:** land in `campaign-orchestration/<slug>/`.
 
+**Required reference — read before any subtask:**
+`campaign-orchestration/personalization-data-catalog.md` — the authoritative
+list of user properties and events available for HTML template tokens and
+workflow branching. Every `{{variable}}` in an HTML template and every
+`contact.*` condition in a workflow **must** map to a field defined there. If a
+needed field is absent, add a `# BLOCKER:` comment and flag it rather than
+inventing a field name.
+
 ---
 
 ## Subtask 1 · Build Send Sequence
