@@ -22,7 +22,7 @@ Usage:
 
 Options:
     --output-dir DIR   Where to write rendered HTML files.
-                       Default: rendered/<copy-json-stem>/
+                       Default: campaign-orchestration/<campaign-slug>/rendered/
     --repo-root DIR    Repo root path. Default: auto-detected via CLAUDE.md.
     --strict           Exit 1 if any required content field is missing from
                        the copy JSON (default: warn only).
@@ -33,7 +33,7 @@ Examples:
 
     python campaign-orchestration/scripts/render-email-html.py \\
         copywriting-archive/spring-reengagement-2026-copy.json \\
-        --output-dir rendered/spring-reengagement-2026 \\
+        --output-dir campaign-orchestration/spring-reengagement-2026/rendered \\
         --strict
 """
 
@@ -298,7 +298,7 @@ def main() -> None:
         "--output-dir",
         metavar="DIR",
         default=None,
-        help="Output directory for rendered HTML. Default: rendered/<copy-json-stem>/",
+        help="Output directory for rendered HTML. Default: campaign-orchestration/<campaign-slug>/rendered/",
     )
     parser.add_argument(
         "--repo-root",
@@ -329,11 +329,12 @@ def main() -> None:
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    output_dir = (
-        Path(args.output_dir).resolve()
-        if args.output_dir
-        else repo_root / "rendered" / copy_path.stem
-    )
+    if args.output_dir:
+        output_dir = Path(args.output_dir).resolve()
+    else:
+        stem = copy_path.stem
+        campaign_slug = stem[:-5] if stem.endswith("-copy") else stem
+        output_dir = repo_root / "campaign-orchestration" / campaign_slug / "rendered"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load copy data.

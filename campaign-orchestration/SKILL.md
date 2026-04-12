@@ -79,7 +79,7 @@ workflow document.
   → Email 3 → exit
 ```
 
-**Output:** `campaign-orchestration/<campaign-slug>-workflow.md`
+**Output:** `campaign-orchestration/<campaign-slug>/workflow.md`
 
 ---
 
@@ -98,7 +98,7 @@ configuration.
    document.
 
 **Output:** A/B Test Summary section in
-`campaign-orchestration/<campaign-slug>-workflow.md`
+`campaign-orchestration/<campaign-slug>/workflow.md`
 
 ---
 
@@ -116,7 +116,7 @@ configuration.
 4. Document reporting cadence and dashboard.
 
 **Output:** Tracking and Attribution section in
-`campaign-orchestration/<campaign-slug>-workflow.md`
+`campaign-orchestration/<campaign-slug>/workflow.md`
 
 ---
 
@@ -138,9 +138,12 @@ Run the rendering script from the repo root:
 
 ```bash
 python campaign-orchestration/scripts/render-email-html.py \
-    copywriting-archive/<campaign-slug>-copy.json \
-    --output-dir rendered/<campaign-slug>
+    copywriting-archive/<campaign-slug>-copy.json
 ```
+
+The script auto-derives the campaign slug from the copy JSON filename and
+writes output to `campaign-orchestration/<campaign-slug>/rendered/` by
+default. Override with `--output-dir` if needed.
 
 The script:
 1. Reads the copy JSON array (one object per email in the series).
@@ -154,14 +157,14 @@ The script:
    `{{cta_url}}` that the copy JSON doesn't supply).
 7. Writes one rendered `.html` file per email to the output directory.
 
-**Output:** `rendered/<campaign-slug>/<email-slug>.html` — one file per email.
+**Output:** `campaign-orchestration/<campaign-slug>/rendered/<email-slug>.html`
 
 **Notes:**
 - URI fields (`logo_url`, `hero_image_url`, `cta_url`, `unsubscribe_url`) are
   not written by the copywriting skill. Add them to the copy JSON before
   rendering, or fill them in the rendered file manually afterwards.
-- Rendered files are build artifacts — do not commit them. The `rendered/`
-  directory is in `.gitignore`.
+- Rendered files are build artifacts — do not commit them. The
+  `campaign-orchestration/*/rendered/` pattern is in `.gitignore`.
 
 ---
 
@@ -183,13 +186,14 @@ The script:
 - [ ] Sign-off recorded in the Approval section of the workflow document
 
 **Output:** Approval section completed in
-`campaign-orchestration/<campaign-slug>-workflow.md`
+`campaign-orchestration/<campaign-slug>/workflow.md`
 
 ---
 
 ## Workflow Document Structure
 
-Each `<slug>-workflow.md` produced by Subtask 1 must contain these sections:
+Each `campaign-orchestration/<slug>/workflow.md` produced by Subtask 1 must
+contain these sections:
 
 ```
 # Workflow: <Campaign Name>
@@ -238,8 +242,8 @@ External systems called at any node (CRM sync, data warehouse event, etc.)
 - Never leave a send node without a defined exit condition.
 - Never run Subtask 4 before the campaign brief is `Approved` and the copy
   JSON exists.
-- Do not commit rendered HTML files — they belong in `rendered/`, which is
-  gitignored.
+- Do not commit rendered HTML files — they belong in
+  `campaign-orchestration/<slug>/rendered/`, which is gitignored.
 - If a required context document is missing, flag the gap and do not proceed
   with the affected subtask.
 - Frequency cap or suppression overrides must be documented in the workflow
