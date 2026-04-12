@@ -13,6 +13,48 @@ Read the brief (sections 4 and 7), `suppression-rules.md`, `frequency-capping-ru
 
 Write the result to `campaign-orchestration/<slug>/workflow.md` as a single Python code block. Use `send()` calls for each node, `if/else` per contact for branching, `# BLOCKER:` comments above any send that has an unmet dependency, UTMs as inline `cta_url=` arguments, and `# comment sections` for suppression, frequency cap, attribution, and approvals. No tables. No ASCII diagrams.
 
+```python
+segment = crm.query(inclusion_criteria, exclude=[...])
+
+# ── NODE 1: <Email Name>  ──────────────────────  <send date>
+send(email=1, to=segment, cta_url="/<path>?utm_source=email&...")
+
+for contact in segment:
+    if contact.purchased:
+        exit_series(contact)
+    elif contact.opened and not contact.clicked:
+        schedule(node_2, contact, delay="24h")
+    elif not contact.opened:
+        schedule(node_2, contact, delay="3d")
+    if contact.unsubscribed or contact.spam_complaint:
+        exit_series(contact); suppress_globally(contact)
+
+# ── NODE 2: <Email Name>  ──────────────────────  <send date>
+# BLOCKER: <dependency> — <owner>, due <date>
+send(email=2, to=node_2_audience, cta_url="/<path>?utm_source=email&...")
+
+for contact in node_2_audience:
+    if contact.purchased:
+        exit_series(contact)
+    else:
+        schedule(node_3, contact, delay="5d")
+    if contact.unsubscribed or contact.spam_complaint:
+        exit_series(contact); suppress_globally(contact)
+
+# ── FREQUENCY CAP  ─────────────────────────────────────────
+if contact.emails_in_last_7_days >= CAP:
+    delay(next_node, days=1)
+
+# ── ATTRIBUTION  ───────────────────────────────────────────
+# model: last click  |  window: 7 days post-click
+
+# ── BLOCKERS / DEPENDENCIES  ───────────────────────────────
+# <date>  <owner>  — <what is needed>
+
+# ── APPROVAL  ──────────────────────────────────────────────
+# <role>  <name>  pending / approved <date>
+```
+
 ---
 
 ## Subtask 2 · Configure A/B Tests
