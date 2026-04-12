@@ -3,6 +3,7 @@
   "title": "Starter Single Column",
   "type": "object",
   "required": [
+    "preview_text",
     "logo_url",
     "logo_alt",
     "hero_image_url",
@@ -16,6 +17,10 @@
     "company_address"
   ],
   "properties": {
+    "preview_text": {
+      "type": "string",
+      "description": "Hidden preheader text shown in inbox preview — 85–140 characters recommended"
+    },
     "logo_url": {
       "type": "string",
       "format": "uri",
