@@ -59,15 +59,39 @@ Duplicate `email-strategy-brief-template.md` and fill in every section.
 - Sections 6 (Messaging Hierarchy) and 7 (Email Series Plan) are the highest-
   value sections — spend the most effort here.
 
-### Step 3 · Validate the brief
+### Step 3 · Select designs for the email sequence
+For each email in the series (Section 7), assign a design template before the
+brief can be approved for copywriting. This is a required gate — copywriting
+cannot start without it.
+
+1. List the available templates by scanning `email-design/03-pages/`.
+2. For each email in Section 7, pick the template whose layout best fits the
+   email's goal and content type (hero-led, product grid, plain text, etc.).
+3. Fill in the **Design template** column in the Section 7 series plan table
+   with the full path: `email-design/03-pages/<template-name>/`
+4. Fill in Section 7.2 (Design template status):
+   - Set **Template status** to `Ready` if the template folder contains all
+     three required files (`.md`, `.html`, `.schema.json`).
+   - Set **Template status** to `Draft` if the template is incomplete.
+   - Set **Copy unblocked?** to `Yes` only when Template status is `Ready`.
+5. If no suitable template exists for an email, set Template status to `Draft`
+   and trigger the Email Design skill to build one before proceeding.
+
+> A brief must not be moved to `Approved` while any email in the sequence has
+> **Copy unblocked? = No**.
+
+### Step 4 · Validate the brief
 Before saving, confirm:
 - [ ] One primary goal only (Section 5.1)
 - [ ] Inclusion and exclusion criteria are both defined (Section 4.1)
 - [ ] Every email in the series has a send trigger, not just a date (Section 7)
+- [ ] Every email in the series has a Design template path in Section 7
+- [ ] Every email in the series has Template status = `Ready` in Section 7.2
+- [ ] Every email shows Copy unblocked? = `Yes` in Section 7.2
 - [ ] A/B test plan has a single variable per test (Section 12)
 - [ ] Legal review flag is set if promotional terms or discounts are present (Section 14)
 
-### Step 4 · Save the output
+### Step 5 · Save the output
 Save the completed brief as:
 ```
 campaign-strategy/<campaign-slug>-brief.md
@@ -76,13 +100,14 @@ campaign-strategy/<campaign-slug>-brief.md
 Use a descriptive slug: `q3-re-engagement-brief.md`, `summer-launch-brief.md`.
 Do not use dates in the file name unless maintaining versioned snapshots.
 
-### Step 5 · Notify downstream skills
+### Step 6 · Notify downstream skills
 After saving, summarize for the user:
 - Brief file path
 - Primary goal and primary metric
 - Audience segment name and estimated size
 - Number of emails in the series
-- Which downstream skills are now unblocked (copy, design, orchestration)
+- Design template assigned to each email
+- Which downstream skills are now unblocked (copy, orchestration)
 
 ---
 
