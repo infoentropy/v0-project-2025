@@ -2,7 +2,7 @@
 
 Produces the artifacts needed to launch a campaign. Run subtasks in whatever order fits your production state.
 
-**Inputs:** an approved brief at `projects/<slug>/campaign-strategy-brief.md`, and a copy JSON in `copywriting-archive/<slug>-copy.json` for subtask 4.
+**Inputs:** an approved brief at `projects/<slug>/campaign-strategy-brief.md`, and a copy JSON at `projects/<slug>/copy.json` for subtask 4.
 **Outputs:** land in `projects/<slug>/`.
 
 ---
@@ -101,7 +101,7 @@ args on each `send()` call.
 
 ## Subtask 4 · Render ESP-Ready HTML
 
-Run `python campaign-orchestration/scripts/render-email-html.py copywriting-archive/<slug>-copy.json`.
+Run `python campaign-orchestration/scripts/render-email-html.py projects/<slug>/copy.json`.
 The script reads each email's template (paths are defined in the brief's Section 7)
 and schema, substitutes `{{variables}}` with copy values, and warns on unresolved
 URI fields. Output goes to `projects/<slug>/templates/rendered/` (gitignored).

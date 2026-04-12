@@ -44,6 +44,7 @@ here so every artifact for a given project is in one place.
 ```
 projects/<slug>/
 ├── campaign-strategy-brief.md   ← produced by Campaign Strategy skill
+├── copy.json                     ← produced by Copywriting skill
 ├── orchestration.md              ← produced by Campaign Orchestration skill
 └── templates/
     └── rendered/                 ← rendered ESP-ready HTML (gitignored)
@@ -71,13 +72,14 @@ Documents that govern the *look and feel* of emails.
 - Dark mode considerations
 
 ### `copywriting-archive/`
-A reference library of approved, high-performing copy.
+Global reference library used by the Copywriting skill. Contains brand rules
+and approved copy examples — not per-campaign output.
 
-- Subject line swipe files (organized by goal: open rate, re-engagement, etc.)
-- Body copy examples by tone (urgent, educational, conversational, etc.)
-- Brand voice and tone guidelines
-- Words/phrases to avoid
-- Legal or compliance copy requirements
+- `brand-voice-guide.md` — tone, words to use/avoid, compliance copy
+- `subject-line-swipes.md` — high-performing subject line patterns (post-campaign archive)
+- `copy-examples/` — approved body copy examples by tone (post-campaign archive)
+
+Per-campaign copy output (`copy.json`) goes to `projects/<slug>/`, not here.
 
 ### `campaign-orchestration/`
 Global scripts and reference documents used by the Campaign Orchestration skill.
@@ -113,8 +115,8 @@ Each Claude skill is scoped to one or more folders:
 |---|---|---|
 | Campaign Strategy | `campaign-strategy/` (templates, personas) | `projects/<slug>/campaign-strategy-brief.md` |
 | Email Design | `email-design/` | `email-design/` (global — not project-specific) |
-| Copywriting | `copywriting-archive/` | `copywriting-archive/` |
-| Campaign Orchestration | `campaign-orchestration/` (scripts, rules), `projects/<slug>/campaign-strategy-brief.md` | `projects/<slug>/orchestration.md`, `projects/<slug>/templates/` |
+| Copywriting | `projects/<slug>/campaign-strategy-brief.md`, `email-design/` (schemas), `copywriting-archive/` (brand guides) | `projects/<slug>/copy.json` |
+| Campaign Orchestration | `campaign-orchestration/` (scripts, rules), `projects/<slug>/campaign-strategy-brief.md`, `projects/<slug>/copy.json` | `projects/<slug>/orchestration.md`, `projects/<slug>/templates/` |
 
 Skills read their reference folder(s) for global rules and templates. Campaign-
 specific outputs always land in `projects/<slug>/` so every artifact for a

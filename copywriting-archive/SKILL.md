@@ -1,10 +1,9 @@
 # Skill: Copywriting
 
-**Folder:** `copywriting-archive/`
-**Depends on:** an approved campaign brief in `campaign-strategy/` with a design
-template reference (brief Section 10)
-**Feeds into:** `email-design/` — copy values are inserted into the page template's
-`{{variables}}`
+**Depends on:** an approved campaign brief at `projects/<slug>/campaign-strategy-brief.md`
+with a design template reference (brief Section 7.2)
+**Feeds into:** Campaign Orchestration — copy values are inserted into the page
+template's `{{variables}}` via the render script
 
 ---
 
@@ -22,11 +21,11 @@ schema variable.
 
 | Input | Required | Description |
 |---|---|---|
-| Campaign brief path | Yes | Path to the approved `*-brief.md` in `campaign-strategy/` |
+| Campaign slug | Yes | The `<slug>` folder name under `projects/` (e.g. `spring-reengagement-2026`) |
 | Email number in series | Yes | Which email in the send sequence this copy is for |
 
-If the campaign brief status is not `Approved`, stop and ask the user to approve
-the brief first.
+If the brief at `projects/<slug>/campaign-strategy-brief.md` does not have
+status `Approved`, stop and ask the user to approve the brief first.
 
 ---
 
@@ -34,7 +33,7 @@ the brief first.
 
 Read in this order before writing a single word:
 
-1. **The campaign brief** (`campaign-strategy/<slug>-brief.md`)
+1. **The campaign brief** (`projects/<slug>/campaign-strategy-brief.md`)
    Locate the template path for this email in Section 7.2 (Design template
    status). If the row for this email shows Copy unblocked? = No, stop and
    ask the user to resolve the template before continuing.
@@ -47,15 +46,15 @@ Read in this order before writing a single word:
    Scan the Variables Required table to understand the purpose of each field and
    confirm which are copy vs. asset fields.
 
-4. **`brand-voice-guide.md`** (this folder)
+4. **`copywriting-archive/brand-voice-guide.md`**
    Defines tone, words to use, words to avoid, and required compliance copy.
    This is the highest-authority document — never deviate from it without
    explicit user instruction.
 
-5. **`subject-line-swipes.md`** (this folder)
+5. **`copywriting-archive/subject-line-swipes.md`** (if it exists)
    Reference structural patterns for subject line options. Do not copy verbatim.
 
-6. **`copy-examples/`** (this folder, if populated)
+6. **`copywriting-archive/copy-examples/`** (if populated)
    Approved body copy examples by tone. Read the file(s) matching the tone in
    brief Section 6.4.
 
@@ -116,7 +115,7 @@ From the brief extract:
 ### Step 3 · Write subject line and preview text
 These are always required. Write 3–5 options:
 - Match the angle from brief Section 9
-- Check every option against the avoid list in `brand-voice-guide.md`
+- Check every option against the avoid list in `copywriting-archive/brand-voice-guide.md`
 - Verify character counts: subject ≤ 50 chars, preview text ≤ 90 chars
 - Mark the recommended option
 
@@ -127,10 +126,10 @@ For each **copy** field identified in Step 1, write the value:
 - Keep field values self-contained — each value will be dropped directly into
   the template `{{variable}}` without surrounding context
 
-Output a single JSON object. Property names must exactly match the schema
-property names. Subject line is the only field with multiple options — represent
-it as an object with an `options` array and a `recommended` string. All other
-copy fields are plain strings.
+Assemble the output as a single JSON object. Property names must exactly match
+the schema property names. Subject line is the only field with multiple options —
+represent it as an object with an `options` array and a `recommended` string.
+All other copy fields are plain strings.
 
 ```json
 {
@@ -158,33 +157,36 @@ copy fields are plain strings.
 Include only the copy fields identified in Step 1 plus `email`, `template`,
 `subject_line`, and `preview_text`. Do not include URI fields or design fields.
 
+Save the JSON to `projects/<slug>/copy.json`. If a `copy.json` already exists
+for this project, merge the new email object into it rather than overwriting.
+
 ### Step 5 · Self-review checklist
 - [ ] Every required schema field (per `"required"` array) has a value
-- [ ] No words from the avoid list in `brand-voice-guide.md`
+- [ ] No words from the avoid list in `copywriting-archive/brand-voice-guide.md`
 - [ ] Subject line ≤ 50 characters
 - [ ] Preview text ≤ 90 characters
 - [ ] One CTA label — no competing calls to action
 - [ ] Legal or compliance copy included if required by brief Section 14
 - [ ] Alt text written for every image field (never left blank)
+- [ ] JSON saved to `projects/<slug>/copy.json`
 
 ### Step 6 · Archive strong copy
 After the campaign completes and results are known, save high-performing
-subject lines to `subject-line-swipes.md` and notable body copy to the
-appropriate file in `copy-examples/`. Note the metric result alongside each
-archived piece.
+subject lines to `copywriting-archive/subject-line-swipes.md` and notable body
+copy to the appropriate file in `copywriting-archive/copy-examples/`. Note the
+metric result alongside each archived piece.
 
 ---
 
 ## Output Spec
 
-| Output | Delivered as | Saved to |
-|---|---|---|
-| JSON copy object (one per email) | Inline in response | — |
-| Post-campaign archive entry | — | `subject-line-swipes.md` or `copy-examples/` |
+| Output | Location |
+|---|---|
+| Copy JSON (one object per email) | `projects/<slug>/copy.json` |
+| Post-campaign archive entries | `copywriting-archive/subject-line-swipes.md` or `copywriting-archive/copy-examples/` |
 
-Copy is delivered as a JSON object so values can be applied programmatically or
-pasted directly into the template by field name. It is only saved to this folder
-after the campaign completes.
+The copy JSON is saved to the project folder so the Campaign Orchestration skill
+can read it directly when rendering ESP-ready HTML.
 
 ---
 
