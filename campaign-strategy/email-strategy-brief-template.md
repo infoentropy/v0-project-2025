@@ -153,18 +153,34 @@ campaign-specific tone adjustments._
 ## 7. Email Series Plan
 
 _Map every email in the campaign. Add or remove rows as needed._
+_The **Design template** column must be filled in before this brief is approved
+for copywriting. Each value must be a path to an existing folder under
+`email-design/03-pages/` (e.g. `email-design/03-pages/starter-single-column/`).
+If the right template does not exist yet, the Email Design skill must build it
+first._
 
-| # | Email name | Send trigger / timing | Audience | Subject line direction | Primary CTA | Goal |
-|---|---|---|---|---|---|---|
-| 1 | | | | | | |
-| 2 | | | | | | |
-| 3 | | | | | | |
+| # | Email name | Send trigger / timing | Audience | Subject line direction | Primary CTA | Goal | Design template |
+|---|---|---|---|---|---|---|---|
+| 1 | | | | | | | |
+| 2 | | | | | | | |
+| 3 | | | | | | | |
 
 ### 7.1 Cadence rules
 - Minimum days between sends to same recipient:
 - Maximum emails in this series:
 - Global frequency cap interaction: _(does this series respect or override the
   global cap?)_
+
+### 7.2 Design template status
+
+_Track readiness for each email before copywriting begins. Copywriting must not
+start for an email until its row below shows **Ready**._
+
+| # | Design template path | Template status | Copy unblocked? |
+|---|---|---|---|
+| 1 | | Draft / Ready | No / Yes |
+| 2 | | Draft / Ready | No / Yes |
+| 3 | | Draft / Ready | No / Yes |
 
 ---
 
@@ -200,13 +216,14 @@ from this direction._
 
 ## 10. Design Direction
 
-_High-level creative direction only. Detailed specs live in `email-design/`._
+_High-level creative direction only. Detailed specs live in `email-design/`.
+Per-email template assignments live in Section 7.2 — that is the authoritative
+source for copywriting. Use this section for campaign-wide mood and layout
+guidance only._
 
 - **Layout:** _(e.g., single column, hero + text, product grid)_
 - **Hero image / visual:** _(description or asset reference)_
 - **Brand mood:** _(e.g., clean and minimal, warm and editorial, bold and urgent)_
-- **Template reference:** _(link to a template in `email-design/03-pages/` if
-  applicable)_
 - **Mobile priority notes:** _(anything that must work differently on mobile)_
 
 ---
