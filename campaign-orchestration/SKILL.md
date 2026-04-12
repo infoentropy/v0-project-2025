@@ -2,17 +2,18 @@
 
 **Folder:** `campaign-orchestration/`
 **Depends on:** an approved campaign brief in `campaign-strategy/`
-**Feeds into:** the sending platform / ESP (workflow definitions are exported or referenced here)
+**Feeds into:** the sending platform / ESP (workflow definitions, rendered HTML)
 
 ---
 
 ## What This Skill Does
 
-Defines the end-to-end operational logic for running a campaign: entry triggers,
-send sequence, wait steps, branching conditions, channel priority, suppression
-rules, frequency capping, A/B test configuration, and integration touchpoints.
-Output is a workflow definition document that an engineer or ESP operator can
-implement directly.
+Defines the end-to-end operational logic for running a campaign and produces
+the artifacts needed to launch it. The skill is organized as a set of named
+**subtasks** — each has defined inputs, a process, and an output.
+
+Run subtasks in the order that fits your campaign's production state. Most
+campaigns run them roughly in sequence; some can run in parallel.
 
 ---
 
@@ -21,45 +22,52 @@ implement directly.
 | Input | Required | Description |
 |---|---|---|
 | Campaign brief path | Yes | Path to the approved `*-brief.md` in `campaign-strategy/` |
-| ESP / sending platform | No | Name of the tool that will execute the workflow (e.g., Braze, Klaviyo, Iterable) |
-| Suppression overrides | No | Any campaign-specific exceptions to global suppression rules |
-| Integration dependencies | No | External systems this workflow must connect to (CRM, data warehouse, etc.) |
+| Copy JSON path | Yes (for Subtask 4) | Path to `copywriting-archive/<slug>-copy.json` |
+| ESP / sending platform | No | Name of the tool executing the workflow (e.g., Braze, Klaviyo) |
+| Suppression overrides | No | Campaign-specific exceptions to global suppression rules |
+| Integration dependencies | No | External systems this workflow must connect to |
 
 If the campaign brief is not yet approved (status ≠ `Approved`), stop and ask
-the user to approve the brief before building the workflow.
+the user to approve the brief before proceeding.
 
 ---
 
 ## Context Documents — Read These First
 
-Before building any workflow, read the following files in this folder in order:
+Before running subtasks that involve send logic, read these files in this folder:
 
-1. `frequency-capping-rules.md` — global send limits per recipient per day/week.
-   Every workflow must respect these unless the brief explicitly grants an
-   override and a reason is documented.
-2. `suppression-rules.md` — global suppression list logic (unsubscribes,
-   bounces, complainers, recent purchasers). Apply all applicable rules.
-3. `channel-priority-rules.md` — when email, SMS, and push overlap, defines
-   which channel takes precedence and when fallbacks trigger.
-4. `ab-test-standards.md` — required configuration format for A/B tests,
-   sample size minimums, and winner-declaration criteria.
+1. `frequency-capping-rules.md` — global send limits per recipient per day/week
+2. `suppression-rules.md` — global suppression logic (unsubscribes, bounces, complainers)
+3. `channel-priority-rules.md` — precedence rules when email, SMS, and push overlap
+4. `ab-test-standards.md` — required config format, sample size minimums, winner criteria
 
-Then read from `campaign-strategy/`:
-5. The active campaign brief — focus on Sections 4 (Target Audience and
-   Suppression), 7 (Email Series Plan and Cadence Rules), 8 (Offer),
-   12 (A/B Test Plan), and 13 (Tracking and Attribution).
+Then from `campaign-strategy/`:
+
+5. The active campaign brief — focus on Sections 4, 7, 8, 12, and 13
+
+The **Render ESP-Ready HTML** subtask (Subtask 4) does not require these documents.
 
 ---
 
-## Process
+## Subtasks
 
-### Step 1 · Map the send sequence
-From brief Section 7, extract every email in the series:
-- Entry trigger for Email 1 (date, behavioral event, or segment membership)
-- Wait condition between each email (fixed delay, or behavioral branch)
-- Exit conditions (purchase, unsubscribe, non-engagement threshold)
+### Subtask 1 · Build Send Sequence
 
-Draw the sequence as a text flow diagram before writing the formal document:
+**Purpose:** Map the email series from the campaign brief into a structured
+workflow document.
+
+**Inputs:** Campaign brief (Sections 4 and 7), `suppression-rules.md`,
+`frequency-capping-rules.md`, `channel-priority-rules.md`
+
+**Process:**
+1. Extract every email in the series from brief Section 7: name, trigger,
+   template, send date.
+2. Define each as a send node with: entry trigger, wait condition, suppression
+   rules, exit conditions.
+3. Apply frequency capping and suppression rules to every node.
+4. Define branching (e.g., opened → suppress from next email; purchased → exit).
+5. Draw the sequence as a text flow diagram:
+
 ```
 [Entry trigger]
   → Email 1 (Day 0)
@@ -71,53 +79,117 @@ Draw the sequence as a text flow diagram before writing the formal document:
   → Email 3 → exit
 ```
 
-### Step 2 · Apply suppression and frequency rules
-For every send node in the sequence:
-- Apply all rules from `suppression-rules.md`.
-- Apply frequency cap from `frequency-capping-rules.md`.
-- If the brief requests an override, document the justification explicitly.
-
-### Step 3 · Configure channel logic
-If the campaign uses channels beyond email, apply `channel-priority-rules.md`
-to define fallback conditions (e.g., if email bounces → SMS within 24 hours).
-
-### Step 4 · Define A/B tests
-For each test in brief Section 12:
-- Map it to the correct send node.
-- Apply sample size and split from `ab-test-standards.md`.
-- Define winner-declaration date and fallback if no winner.
-
-### Step 5 · Define tracking
-Confirm UTM parameters from brief Section 13 are applied to every link at every
-send node. Document the attribution window and reporting tool.
-
-### Step 6 · Save the workflow document
-Save as:
-```
-campaign-orchestration/<campaign-slug>-workflow.md
-```
-
-### Step 7 · Validate before handing off
-- [ ] Every send node has an entry trigger (no floating sends)
-- [ ] Exit conditions prevent infinite loops
-- [ ] Suppression rules applied at every node
-- [ ] Frequency cap not violated across any 7-day window
-- [ ] A/B winner criteria defined for every test
-- [ ] UTM parameters present on all links
+**Output:** `campaign-orchestration/<campaign-slug>-workflow.md`
 
 ---
 
-## Output Spec
+### Subtask 2 · Configure A/B Tests
 
-| Output | Location | Format |
-|---|---|---|
-| Workflow definition | `campaign-orchestration/<slug>-workflow.md` | Sequence diagram + node-by-node spec |
+**Purpose:** Translate the A/B test plan from the brief into a structured test
+configuration.
+
+**Inputs:** Campaign brief (Section 12), `ab-test-standards.md`
+
+**Process:**
+1. Read each test entry: variable, variants, split %, winner criteria, decision
+   date.
+2. Validate that variant labels match the options defined in the copy JSON.
+3. Write test configuration into the A/B Test Summary section of the workflow
+   document.
+
+**Output:** A/B Test Summary section in
+`campaign-orchestration/<campaign-slug>-workflow.md`
+
+---
+
+### Subtask 3 · Define Tracking and Attribution
+
+**Purpose:** Set UTM parameters and attribution windows for all sends.
+
+**Inputs:** Campaign brief (Sections 8 and 13)
+
+**Process:**
+1. Define UTM parameters per email (source, medium, campaign, content).
+2. Set attribution window (default: 7-day click, 1-day open, unless brief
+   overrides).
+3. Confirm parameters are applied to all links in the template.
+4. Document reporting cadence and dashboard.
+
+**Output:** Tracking and Attribution section in
+`campaign-orchestration/<campaign-slug>-workflow.md`
+
+---
+
+### Subtask 4 · Render ESP-Ready HTML
+
+**Purpose:** Produce rendered, send-ready HTML files by merging copy values
+into design templates. Output files are ready to upload directly to an ESP.
+
+**Inputs:**
+- Copy JSON: `copywriting-archive/<campaign-slug>-copy.json`
+- HTML templates referenced by the copy JSON:
+  `email-design/03-pages/<template-name>/<template-name>.html`
+- Schema files for variable validation:
+  `email-design/03-pages/<template-name>/<template-name>.schema.json`
+
+**Process:**
+
+Run the rendering script from the repo root:
+
+```bash
+python campaign-orchestration/scripts/render-email-html.py \
+    copywriting-archive/<campaign-slug>-copy.json \
+    --output-dir rendered/<campaign-slug>
+```
+
+The script:
+1. Reads the copy JSON array (one object per email in the series).
+2. For each email entry, reads the `template` field and resolves the `.html`
+   file path.
+3. Reads the paired `.schema.json` to understand all expected variables.
+4. Substitutes every `{{variable}}` placeholder in the template with the
+   matching value from the copy object.
+5. Converts plain-text `body_copy` newlines into HTML paragraph breaks.
+6. Logs a warning for any unresolved variables (e.g., URI fields like
+   `{{cta_url}}` that the copy JSON doesn't supply).
+7. Writes one rendered `.html` file per email to the output directory.
+
+**Output:** `rendered/<campaign-slug>/<email-slug>.html` — one file per email.
+
+**Notes:**
+- URI fields (`logo_url`, `hero_image_url`, `cta_url`, `unsubscribe_url`) are
+  not written by the copywriting skill. Add them to the copy JSON before
+  rendering, or fill them in the rendered file manually afterwards.
+- Rendered files are build artifacts — do not commit them. The `rendered/`
+  directory is in `.gitignore`.
+
+---
+
+### Subtask 5 · Validate and Handoff
+
+**Purpose:** Final pre-launch checks before handing off to the ESP operator.
+
+**Inputs:** Rendered HTML files, workflow document, campaign brief
+
+**Checklist:**
+- [ ] Campaign brief status is `Approved`
+- [ ] One rendered HTML file exists per email in the series
+- [ ] No unresolved `{{variable}}` tokens remain in any rendered file
+- [ ] Workflow document covers all send nodes with defined exit conditions
+- [ ] A/B test configuration complete with winner criteria and decision dates
+- [ ] UTM parameters set on all links at every send node
+- [ ] Suppression rules documented in workflow
+- [ ] Frequency cap not violated across any 7-day window
+- [ ] Sign-off recorded in the Approval section of the workflow document
+
+**Output:** Approval section completed in
+`campaign-orchestration/<campaign-slug>-workflow.md`
 
 ---
 
 ## Workflow Document Structure
 
-Each `<slug>-workflow.md` file must contain these sections:
+Each `<slug>-workflow.md` produced by Subtask 1 must contain these sections:
 
 ```
 # Workflow: <Campaign Name>
@@ -126,10 +198,9 @@ Each `<slug>-workflow.md` file must contain these sections:
 Brief | Audience | Series length | Entry trigger | Primary channel
 
 ## Sequence Diagram
-[Text flow diagram of the full send sequence]
+[Text flow diagram from Subtask 1]
 
 ## Node Definitions
-One sub-section per send node:
 ### Node N — <Email Name>
 - Trigger / wait condition
 - Audience at this node (after suppression)
@@ -139,14 +210,17 @@ One sub-section per send node:
 - UTM parameters
 - Exit conditions
 
+## A/B Test Summary
+[From Subtask 2]
+
+## Tracking and Attribution
+[From Subtask 3]
+
 ## Suppression Summary
-List of all suppression rules applied and any overrides granted
+List of all suppression rules applied, plus any overrides with business justification
 
 ## Frequency Cap Check
-Confirmation that no recipient receives more than [N] sends in [window]
-
-## A/B Test Summary
-Test variable, split, winner criteria, decision date for each test
+Confirmation no recipient receives more than [N] sends in any [window]
 
 ## Integration Touchpoints
 External systems called at any node (CRM sync, data warehouse event, etc.)
@@ -159,10 +233,16 @@ External systems called at any node (CRM sync, data warehouse event, etc.)
 
 ## Rules
 
-- Never build a workflow without reading `suppression-rules.md` and
+- Never run Subtask 1 without reading `suppression-rules.md` and
   `frequency-capping-rules.md` first.
 - Never leave a send node without a defined exit condition.
-- If a brief calls for a frequency cap override, document the business reason
-  in the workflow file — do not silently apply the override.
-- Do not reference ESP-specific UI steps; keep workflow definitions
-  platform-agnostic unless the user specifies a platform.
+- Never run Subtask 4 before the campaign brief is `Approved` and the copy
+  JSON exists.
+- Do not commit rendered HTML files — they belong in `rendered/`, which is
+  gitignored.
+- If a required context document is missing, flag the gap and do not proceed
+  with the affected subtask.
+- Frequency cap or suppression overrides must be documented in the workflow
+  file with a business justification — do not silently apply them.
+- Keep workflow definitions platform-agnostic unless the user specifies a
+  platform.
