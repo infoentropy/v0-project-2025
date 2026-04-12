@@ -1,168 +1,80 @@
 # Skill: Campaign Orchestration
 
-**Folder:** `campaign-orchestration/`
-**Depends on:** an approved campaign brief in `campaign-strategy/`
-**Feeds into:** the sending platform / ESP (workflow definitions are exported or referenced here)
+Produces the artifacts needed to launch a campaign. Run subtasks in whatever order fits your production state.
+
+**Inputs:** an approved brief in `campaign-strategy/`, and a copy JSON in `copywriting-archive/` for subtask 4.
+**Outputs:** land in `campaign-orchestration/<slug>/`.
 
 ---
 
-## What This Skill Does
+## Subtask 1 · Build Send Sequence
 
-Defines the end-to-end operational logic for running a campaign: entry triggers,
-send sequence, wait steps, branching conditions, channel priority, suppression
-rules, frequency capping, A/B test configuration, and integration touchpoints.
-Output is a workflow definition document that an engineer or ESP operator can
-implement directly.
+Read the brief (sections 4 and 7), `suppression-rules.md`, `frequency-capping-rules.md`, and `channel-priority-rules.md`. Map each email in the series to a send node: trigger, audience after suppression, branching logic, and exit conditions.
 
----
+Write the result to `campaign-orchestration/<slug>/workflow.md` as a single Python code block. Use `send()` calls for each node, `if/else` per contact for branching, `# BLOCKER:` comments above any send that has an unmet dependency, UTMs as inline `cta_url=` arguments, and `# comment sections` for suppression, frequency cap, attribution, and approvals. No tables. No ASCII diagrams.
 
-## Inputs
+```python
+segment = crm.query(inclusion_criteria, exclude=[...])
 
-| Input | Required | Description |
-|---|---|---|
-| Campaign brief path | Yes | Path to the approved `*-brief.md` in `campaign-strategy/` |
-| ESP / sending platform | No | Name of the tool that will execute the workflow (e.g., Braze, Klaviyo, Iterable) |
-| Suppression overrides | No | Any campaign-specific exceptions to global suppression rules |
-| Integration dependencies | No | External systems this workflow must connect to (CRM, data warehouse, etc.) |
+# ── NODE 1: <Email Name>  ──────────────────────  <send date>
+send(email=1, to=segment, cta_url="/<path>?utm_source=email&...")
 
-If the campaign brief is not yet approved (status ≠ `Approved`), stop and ask
-the user to approve the brief before building the workflow.
+for contact in segment:
+    if contact.purchased:
+        exit_series(contact)
+    elif contact.opened and not contact.clicked:
+        schedule(node_2, contact, delay="24h")
+    elif not contact.opened:
+        schedule(node_2, contact, delay="3d")
+    if contact.unsubscribed or contact.spam_complaint:
+        exit_series(contact); suppress_globally(contact)
 
----
+# ── NODE 2: <Email Name>  ──────────────────────  <send date>
+# BLOCKER: <dependency> — <owner>, due <date>
+send(email=2, to=node_2_audience, cta_url="/<path>?utm_source=email&...")
 
-## Context Documents — Read These First
+for contact in node_2_audience:
+    if contact.purchased:
+        exit_series(contact)
+    else:
+        schedule(node_3, contact, delay="5d")
+    if contact.unsubscribed or contact.spam_complaint:
+        exit_series(contact); suppress_globally(contact)
 
-Before building any workflow, read the following files in this folder in order:
+# ── FREQUENCY CAP  ─────────────────────────────────────────
+if contact.emails_in_last_7_days >= CAP:
+    delay(next_node, days=1)
 
-1. `frequency-capping-rules.md` — global send limits per recipient per day/week.
-   Every workflow must respect these unless the brief explicitly grants an
-   override and a reason is documented.
-2. `suppression-rules.md` — global suppression list logic (unsubscribes,
-   bounces, complainers, recent purchasers). Apply all applicable rules.
-3. `channel-priority-rules.md` — when email, SMS, and push overlap, defines
-   which channel takes precedence and when fallbacks trigger.
-4. `ab-test-standards.md` — required configuration format for A/B tests,
-   sample size minimums, and winner-declaration criteria.
+# ── ATTRIBUTION  ───────────────────────────────────────────
+# model: last click  |  window: 7 days post-click
 
-Then read from `campaign-strategy/`:
-5. The active campaign brief — focus on Sections 4 (Target Audience and
-   Suppression), 7 (Email Series Plan and Cadence Rules), 8 (Offer),
-   12 (A/B Test Plan), and 13 (Tracking and Attribution).
+# ── BLOCKERS / DEPENDENCIES  ───────────────────────────────
+# <date>  <owner>  — <what is needed>
 
----
-
-## Process
-
-### Step 1 · Map the send sequence
-From brief Section 7, extract every email in the series:
-- Entry trigger for Email 1 (date, behavioral event, or segment membership)
-- Wait condition between each email (fixed delay, or behavioral branch)
-- Exit conditions (purchase, unsubscribe, non-engagement threshold)
-
-Draw the sequence as a text flow diagram before writing the formal document:
-```
-[Entry trigger]
-  → Email 1 (Day 0)
-      ├─ Opened → wait 3 days → Email 2
-      └─ Not opened → wait 2 days → Email 2 (re-send with alt subject)
-  → Email 2
-      ├─ Clicked → exit (converted)
-      └─ Not clicked → wait 5 days → Email 3
-  → Email 3 → exit
-```
-
-### Step 2 · Apply suppression and frequency rules
-For every send node in the sequence:
-- Apply all rules from `suppression-rules.md`.
-- Apply frequency cap from `frequency-capping-rules.md`.
-- If the brief requests an override, document the justification explicitly.
-
-### Step 3 · Configure channel logic
-If the campaign uses channels beyond email, apply `channel-priority-rules.md`
-to define fallback conditions (e.g., if email bounces → SMS within 24 hours).
-
-### Step 4 · Define A/B tests
-For each test in brief Section 12:
-- Map it to the correct send node.
-- Apply sample size and split from `ab-test-standards.md`.
-- Define winner-declaration date and fallback if no winner.
-
-### Step 5 · Define tracking
-Confirm UTM parameters from brief Section 13 are applied to every link at every
-send node. Document the attribution window and reporting tool.
-
-### Step 6 · Save the workflow document
-Save as:
-```
-campaign-orchestration/<campaign-slug>-workflow.md
-```
-
-### Step 7 · Validate before handing off
-- [ ] Every send node has an entry trigger (no floating sends)
-- [ ] Exit conditions prevent infinite loops
-- [ ] Suppression rules applied at every node
-- [ ] Frequency cap not violated across any 7-day window
-- [ ] A/B winner criteria defined for every test
-- [ ] UTM parameters present on all links
-
----
-
-## Output Spec
-
-| Output | Location | Format |
-|---|---|---|
-| Workflow definition | `campaign-orchestration/<slug>-workflow.md` | Sequence diagram + node-by-node spec |
-
----
-
-## Workflow Document Structure
-
-Each `<slug>-workflow.md` file must contain these sections:
-
-```
-# Workflow: <Campaign Name>
-
-## Overview
-Brief | Audience | Series length | Entry trigger | Primary channel
-
-## Sequence Diagram
-[Text flow diagram of the full send sequence]
-
-## Node Definitions
-One sub-section per send node:
-### Node N — <Email Name>
-- Trigger / wait condition
-- Audience at this node (after suppression)
-- Suppression rules applied
-- Channel
-- A/B test (if any)
-- UTM parameters
-- Exit conditions
-
-## Suppression Summary
-List of all suppression rules applied and any overrides granted
-
-## Frequency Cap Check
-Confirmation that no recipient receives more than [N] sends in [window]
-
-## A/B Test Summary
-Test variable, split, winner criteria, decision date for each test
-
-## Integration Touchpoints
-External systems called at any node (CRM sync, data warehouse event, etc.)
-
-## Approval
-| Role | Name | Approved | Date |
+# ── APPROVAL  ──────────────────────────────────────────────
+# <role>  <name>  pending / approved <date>
 ```
 
 ---
 
-## Rules
+## Subtask 2 · Configure A/B Tests
 
-- Never build a workflow without reading `suppression-rules.md` and
-  `frequency-capping-rules.md` first.
-- Never leave a send node without a defined exit condition.
-- If a brief calls for a frequency cap override, document the business reason
-  in the workflow file — do not silently apply the override.
-- Do not reference ESP-specific UI steps; keep workflow definitions
-  platform-agnostic unless the user specifies a platform.
+Read the brief (section 12) and `ab-test-standards.md`. For each test, confirm variant labels match options in the copy JSON. Record variable, split, winner criteria, decision date, and fallback. Append to the workflow as a `# ── A/B TEST` comment section.
+
+---
+
+## Subtask 3 · Define Tracking and Attribution
+
+Read the brief (sections 8 and 13). Build UTM strings per email and confirm the attribution window. Append to the workflow as a `# ── ATTRIBUTION` comment section. UTM strings also go inline as `cta_url=` args on each `send()` call.
+
+---
+
+## Subtask 4 · Render ESP-Ready HTML
+
+Run `python campaign-orchestration/scripts/render-email-html.py copywriting-archive/<slug>-copy.json`. The script reads each email's template and schema, substitutes `{{variables}}` with copy values, and warns on unresolved URI fields. Output goes to `campaign-orchestration/<slug>/rendered/` (gitignored).
+
+---
+
+## Subtask 5 · Validate and Handoff
+
+Confirm the brief is approved, every rendered HTML has no unresolved `{{tokens}}`, every send node has an exit condition, A/B tests have winner criteria, UTMs are on all links, and suppression is documented. Record sign-off in the workflow's `# ── APPROVAL` section.
