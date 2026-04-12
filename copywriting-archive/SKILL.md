@@ -1,16 +1,20 @@
 # Skill: Copywriting
 
 **Folder:** `copywriting-archive/`
-**Depends on:** an approved campaign brief in `campaign-strategy/`
-**Feeds into:** `email-design/` (copy is inserted into HTML templates)
+**Depends on:** an approved campaign brief in `campaign-strategy/` with a design
+template reference (brief Section 10)
+**Feeds into:** `email-design/` — copy values are inserted into the page template's
+`{{variables}}`
 
 ---
 
 ## What This Skill Does
 
-Writes on-brand email copy — subject lines, preview text, body copy, and CTAs —
-guided by the campaign brief and the brand voice documents in this folder.
-Also archives high-performing copy so future campaigns can reference it.
+Writes on-brand email copy for every copy field defined in the email design's
+JSON schema. The brief identifies which page template the campaign uses; the
+schema for that template is the authoritative list of fields that need copy.
+No field is guessed or invented — every piece of copy maps directly to a named
+schema variable.
 
 ---
 
@@ -20,72 +24,137 @@ Also archives high-performing copy so future campaigns can reference it.
 |---|---|---|
 | Campaign brief path | Yes | Path to the approved `*-brief.md` in `campaign-strategy/` |
 | Email number in series | Yes | Which email in the send sequence this copy is for |
-| Tone direction | No | Any campaign-specific tone override from brief Section 6.4 |
-| Copy length target | No | Short (≤ 100 words body), standard (100–200 words), long-form (200+) |
 
-If the campaign brief is not yet approved (status ≠ `Approved`), stop and ask
-the user to approve the brief before writing copy.
+If the campaign brief status is not `Approved`, stop and ask the user to approve
+the brief first.
 
 ---
 
 ## Context Documents — Read These First
 
-Before writing any copy, read the following files in this folder in order:
+Read in this order before writing a single word:
 
-1. `brand-voice-guide.md` — defines tone, personality, words to use, words to
-   avoid, and mandatory compliance copy. This is the highest-authority document.
-   Do not deviate from it without explicit user instruction.
-2. `subject-line-swipes.md` — approved subject line examples organized by goal.
-   Reference these for structural patterns; do not copy verbatim.
-3. `copy-examples/` — approved body copy examples by tone. Read the file(s)
-   that match the tone specified in the campaign brief.
+1. **The campaign brief** (`campaign-strategy/<slug>-brief.md`)
+   Locate the template reference in Section 10 (`email-design/03-pages/<name>/`).
+   If no template reference is set, ask the user which design to use before
+   continuing.
 
-Then read from `campaign-strategy/`:
-4. The active campaign brief — focus on Sections 6 (Messaging Hierarchy),
-   7 (Email Series Plan), 8 (Offer and CTA Strategy), and 9 (Subject Line
-   and Preview Text Direction).
+2. **The page schema** (`email-design/03-pages/<template-name>/<template-name>.schema.json`)
+   This is the definitive field list. Every copy field you write must correspond
+   to a property in this schema.
+
+3. **The page manifest** (`email-design/03-pages/<template-name>/<template-name>.md`)
+   Scan the Variables Required table to understand the purpose of each field and
+   confirm which are copy vs. asset fields.
+
+4. **`brand-voice-guide.md`** (this folder)
+   Defines tone, words to use, words to avoid, and required compliance copy.
+   This is the highest-authority document — never deviate from it without
+   explicit user instruction.
+
+5. **`subject-line-swipes.md`** (this folder)
+   Reference structural patterns for subject line options. Do not copy verbatim.
+
+6. **`copy-examples/`** (this folder, if populated)
+   Approved body copy examples by tone. Read the file(s) matching the tone in
+   brief Section 6.4.
+
+---
+
+## Identifying Copy Fields in the Schema
+
+Not every schema property needs copy. Use these rules to classify each property:
+
+**Write copy for** properties that are:
+- `"type": "string"` **and** have no `"format": "uri"` key
+- Descriptions that reference text, label, headline, copy, alt text, or name
+
+**Skip** properties that are:
+- `"format": "uri"` — these are asset or link URLs (owned by design/engineering)
+- Descriptions that reference color, size, radius, padding, or dimensions
+
+Example classification using `starter-single-column.schema.json`:
+
+| Property | Classify as | Reason |
+|---|---|---|
+| `headline` | **Copy** | string, no uri format, "Main headline text" |
+| `body_copy` | **Copy** | string, no uri format, "Body paragraph(s)" |
+| `cta_label` | **Copy** | string, no uri format, "Button label" |
+| `logo_alt` | **Copy** | string, no uri format, "Alt text for the logo" |
+| `hero_alt` | **Copy** | string, no uri format, "Alt text for the hero image" |
+| `company_name` | **Copy** | string, no uri format — confirm value with user |
+| `company_address` | **Copy** | string, no uri format — confirm value with user |
+| `logo_url` | Skip | `"format": "uri"` |
+| `hero_image_url` | Skip | `"format": "uri"` |
+| `cta_url` | Skip | `"format": "uri"` |
+| `unsubscribe_url` | Skip | `"format": "uri"` |
+
+> **Note:** `subject_line` and `preview_text` are never in a page schema because
+> they are set at the ESP send level, not in the HTML. Always write them — they
+> are always required regardless of what the schema contains.
 
 ---
 
 ## Process
 
-### Step 1 · Map the message
-From the brief, extract:
-- Primary message (Section 6.1) → drives the subject line and hero copy
-- Secondary messages (Section 6.2) → drive body proof points
-- Offer and CTA (Section 8) → drives the button label and urgency language
-- Tone (Section 6.4) → filters every word choice
+### Step 1 · Resolve the template
+From brief Section 10, find the template reference. Navigate to:
+```
+email-design/03-pages/<template-name>/<template-name>.schema.json
+```
+Read the schema. List every property and classify each as **copy** or **skip**
+using the rules above.
 
-### Step 2 · Write subject line and preview text
-- Write 3–5 subject line options matching the angle from brief Section 9.
-- Write matching preview text for each (≤ 90 characters).
-- Check every option against the avoid list in `brand-voice-guide.md`.
-- Select the strongest option and flag it as the recommended variant.
+### Step 2 · Map the message to schema fields
+From the brief extract:
+- **Section 6.1** (Primary Message) → drives `headline` and subject line
+- **Section 6.2** (Secondary Messages) → drives `body_copy` proof points
+- **Section 8** (Offer and CTA) → drives `cta_label` and urgency language
+- **Section 6.4** (Tone) → filters every word choice
+- **Section 9** (Subject Line Direction) → drives subject line angle and tokens
 
-### Step 3 · Write body copy
-- Open with the primary message — make it the first sentence or headline.
-- Support with 2–3 secondary message proof points.
-- Close with a transition into the CTA.
-- Match the word count target (if specified) or use the brief's tone as a guide.
-- Do not introduce claims, statistics, or product details not in the brief.
+### Step 3 · Write subject line and preview text
+These are always required. Write 3–5 options:
+- Match the angle from brief Section 9
+- Check every option against the avoid list in `brand-voice-guide.md`
+- Verify character counts: subject ≤ 50 chars, preview text ≤ 90 chars
+- Mark the recommended option
 
-### Step 4 · Write the CTA
-- Use the label direction from brief Section 8.
-- Keep to 2–4 words. Action verb first.
-- Confirm the destination URL matches the brief.
+### Step 4 · Write copy for each schema field
+For each **copy** field identified in Step 1, write the value:
+- Ground every field in the messaging hierarchy from the brief (Section 6)
+- Do not introduce claims, statistics, or product details not in the brief
+- Keep field values self-contained — each value will be dropped directly into
+  the template `{{variable}}` without surrounding context
 
-### Step 5 · Self-review
-Before delivering, check:
+Format output as a named field block so it can be directly applied to the
+template:
+```
+subject_line:    [recommended subject line]
+preview_text:    [preview text]
+headline:        [headline copy]
+body_copy:       [body copy]
+cta_label:       [CTA label]
+logo_alt:        [alt text]
+hero_alt:        [alt text]
+company_name:    [confirm or provide]
+company_address: [confirm or provide]
+```
+
+### Step 5 · Self-review checklist
+- [ ] Every required schema field (per `"required"` array) has a value
 - [ ] No words from the avoid list in `brand-voice-guide.md`
-- [ ] Subject line ≤ 50 characters (or justified if longer)
+- [ ] Subject line ≤ 50 characters
 - [ ] Preview text ≤ 90 characters
-- [ ] One primary CTA — no competing calls to action in the body
+- [ ] One CTA label — no competing calls to action
 - [ ] Legal or compliance copy included if required by brief Section 14
+- [ ] Alt text written for every image field (never left blank)
 
 ### Step 6 · Archive strong copy
-After the campaign completes, save high-performing subject lines to
-`subject-line-swipes.md` and notable body copy blocks to the appropriate
-file in `copy-examples/`. Note open rate or conversion result if available.
+After the campaign completes and results are known, save high-performing
+subject lines to `subject-line-swipes.md` and notable body copy to the
+appropriate file in `copy-examples/`. Note the metric result alongside each
+archived piece.
 
 ---
 
@@ -93,22 +162,22 @@ file in `copy-examples/`. Note open rate or conversion result if available.
 
 | Output | Delivered as | Saved to |
 |---|---|---|
-| Subject line options (3–5) | Inline in response | — |
-| Recommended subject + preview text | Inline in response | — |
-| Body copy | Inline in response | — |
-| CTA label | Inline in response | — |
+| Subject line options (3–5) + recommended | Inline in response | — |
+| Named copy block (one value per schema field) | Inline in response | — |
 | Post-campaign archive entry | — | `subject-line-swipes.md` or `copy-examples/` |
 
-Copy is delivered inline for the designer/builder to paste into the template.
-It is only saved to this folder after the campaign completes.
+Copy is delivered inline so the designer or builder can paste values directly
+into the template. It is only saved to this folder after the campaign completes.
 
 ---
 
 ## Rules
 
-- Never write copy without reading `brand-voice-guide.md` first.
-- Never invent product claims, pricing, or legal terms not in the brief.
-- Never write more than one primary CTA per email.
-- If the brand voice guide and the brief conflict, flag it — do not silently
-  choose one over the other.
+- Never write copy without first reading the page schema — field names in your
+  output must exactly match property names in the schema.
+- Never write copy for URI fields (`format: uri`).
+- Never invent product claims, pricing, or legal terms not present in the brief.
+- If the brief's Section 10 has no template reference, ask before proceeding.
+- If the brand voice guide and the brief conflict on tone or language, flag it —
+  do not silently choose one over the other.
 - Do not archive copy that was not actually sent or was rejected by the team.
