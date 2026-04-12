@@ -121,6 +121,20 @@ After saving, summarize for the user:
 
 ---
 
+## Writing Standards
+
+- **Plain language first.** Write at a 9th grade reading level. Use short sentences,
+  active voice, and direct statements. Prefer bullet points over dense paragraphs.
+- **Never invent numbers.** If a metric, audience size, conversion rate, or any
+  numeric value is unknown, either ask the user for it during the session or insert
+  a clearly marked placeholder (e.g., `[INSERT: open rate baseline]`). Do not
+  estimate or fabricate figures.
+- **Never invent people.** Leave stakeholder names, approver names, and owner fields
+  blank rather than filling them with placeholder names. Use `—` or leave the cell
+  empty. Do not create fictional names or roles.
+
+---
+
 ## Rules
 
 - One brief per campaign. Do not bundle two campaigns into one file.
