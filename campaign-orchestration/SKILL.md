@@ -1,81 +1,38 @@
 # Skill: Campaign Orchestration
 
-```python
-# inputs
-brief   = "campaign-strategy/<slug>-brief.md"   # must be status: Approved
-copy    = "copywriting-archive/<slug>-copy.json" # required for subtask 4
-# outputs land in campaign-orchestration/<slug>/
+Produces the artifacts needed to launch a campaign. Run subtasks in whatever order fits your production state.
 
+**Inputs:** an approved brief in `campaign-strategy/`, and a copy JSON in `copywriting-archive/` for subtask 4.
+**Outputs:** land in `campaign-orchestration/<slug>/`.
 
-def subtask_1_build_send_sequence(brief):
-    read(brief, sections=[4, 7])          # audience, email series
-    read("suppression-rules.md")
-    read("frequency-capping-rules.md")
-    read("channel-priority-rules.md")
+---
 
-    for email in brief.series:
-        node = {
-            trigger,        # date, event, or delay from previous node
-            audience,       # segment size after suppression
-            suppression,    # rules applied at this node
-            branches,       # opened/clicked/purchased → next node or exit
-            exit_conditions # purchase, unsub, end of series
-        }
+## Subtask 1 · Build Send Sequence
 
-    # workflow.md is a single python code block — no tables, no ASCII diagrams
-    # nodes as send() calls with inline args
-    # branching as if/else per contact
-    # blockers as # BLOCKER: comments above the send they gate
-    # UTMs as cta_url= args on send()
-    # suppression, freq cap, attribution, approvals as # comment sections
-    write("campaign-orchestration/<slug>/workflow.md")
+Read the brief (sections 4 and 7), `suppression-rules.md`, `frequency-capping-rules.md`, and `channel-priority-rules.md`. Map each email in the series to a send node: trigger, audience after suppression, branching logic, and exit conditions.
 
+Write the result to `campaign-orchestration/<slug>/workflow.md` as a single Python code block. Use `send()` calls for each node, `if/else` per contact for branching, `# BLOCKER:` comments above any send that has an unmet dependency, UTMs as inline `cta_url=` arguments, and `# comment sections` for suppression, frequency cap, attribution, and approvals. No tables. No ASCII diagrams.
 
-def subtask_2_configure_ab_tests(brief, copy):
-    read(brief, section=12)           # test variable, variants, split, winner criteria
-    read("ab-test-standards.md")
+---
 
-    for test in brief.ab_tests:
-        assert test.variant_labels in copy.subject_line.options
-        record(variable, split, winner_criteria, decision_date, fallback)
+## Subtask 2 · Configure A/B Tests
 
-    append_to("campaign-orchestration/<slug>/workflow.md", section="A/B Test Summary")
+Read the brief (section 12) and `ab-test-standards.md`. For each test, confirm variant labels match options in the copy JSON. Record variable, split, winner criteria, decision date, and fallback. Append to the workflow as a `# ── A/B TEST` comment section.
 
+---
 
-def subtask_3_define_tracking(brief):
-    read(brief, sections=[8, 13])     # offer/CTA destinations, UTM, attribution
+## Subtask 3 · Define Tracking and Attribution
 
-    for email in brief.series:
-        utm = build_utm(source, medium, campaign, content=f"email-{n}-cta")
-        attribution_window = brief.attribution_window or "7-day click, 1-day open"
+Read the brief (sections 8 and 13). Build UTM strings per email and confirm the attribution window. Append to the workflow as a `# ── ATTRIBUTION` comment section. UTM strings also go inline as `cta_url=` args on each `send()` call.
 
-    append_to("campaign-orchestration/<slug>/workflow.md", section="Tracking and Attribution")
+---
 
+## Subtask 4 · Render ESP-Ready HTML
 
-def subtask_4_render_html(copy):
-    # runs: python campaign-orchestration/scripts/render-email-html.py <copy>
-    for email in copy:
-        schema = read(email.template + ".schema.json")
-        html   = read(email.template + ".html")
-        vars   = {k: v for k, v in email.items() if k not in METADATA_KEYS}
-        rendered = substitute(html, vars)          # {{var}} → value
-        warn_if_unresolved(rendered, uri_fields)   # logo_url, cta_url, etc. — fill manually
-        write(f"campaign-orchestration/<slug>/rendered/<email-slug>.html")
-    # rendered/ is gitignored
+Run `python campaign-orchestration/scripts/render-email-html.py copywriting-archive/<slug>-copy.json`. The script reads each email's template and schema, substitutes `{{variables}}` with copy values, and warns on unresolved URI fields. Output goes to `campaign-orchestration/<slug>/rendered/` (gitignored).
 
+---
 
-def subtask_5_validate_and_handoff(slug):
-    assert brief.status == "Approved"
+## Subtask 5 · Validate and Handoff
 
-    for html in glob(f"campaign-orchestration/{slug}/rendered/*.html"):
-        assert no_unresolved_tokens(html)   # no remaining {{var}}
-
-    workflow = read(f"campaign-orchestration/{slug}/workflow.md")
-    assert all_nodes_have_exit_conditions(workflow)
-    assert ab_tests_have_winner_criteria(workflow)
-    assert utms_on_all_links(workflow)
-    assert suppression_documented(workflow)
-    assert frequency_cap_not_violated(workflow)
-
-    append_to(workflow, section="Approval", sign_off=True)
-```
+Confirm the brief is approved, every rendered HTML has no unresolved `{{tokens}}`, every send node has an exit condition, A/B tests have winner criteria, UTMs are on all links, and suppression is documented. Record sign-off in the workflow's `# ── APPROVAL` section.
