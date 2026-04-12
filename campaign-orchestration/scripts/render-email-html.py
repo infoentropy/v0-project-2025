@@ -153,17 +153,24 @@ def load_copy_json(path: Path) -> list:
     return data
 
 
+_PARA_STYLE = (
+    'style="margin: 0 0 16px 0; font-family: Arial, sans-serif; '
+    'font-size: 16px; color: #444444; line-height: 1.6;"'
+)
+
+
 def body_copy_to_html(text: str) -> str:
     """
-    Convert plain-text body copy to inline HTML.
+    Convert plain-text body copy to self-contained HTML paragraphs.
 
-    Double newlines (blank lines) split paragraphs; each becomes a </p><p>
-    boundary. Single newlines within a paragraph become <br> tags.
-    The output is meant to be injected directly inside a <p>...</p> element.
+    Double newlines (blank lines) split paragraphs; each becomes a <p> element
+    with inline styles. Single newlines within a paragraph become <br> tags.
+    The output is meant to replace a {{body_copy}} placeholder directly — the
+    template must NOT wrap this slot in its own <p> tag.
     """
     paragraphs = re.split(r"\n{2,}", text.strip())
-    parts = [p.replace("\n", "<br>") for p in paragraphs]
-    return '</p>\n<p style="margin: 0 0 16px 0;">'.join(parts)
+    parts = [f'<p {_PARA_STYLE}>{p.replace(chr(10), "<br>")}</p>' for p in paragraphs]
+    return "\n".join(parts)
 
 
 def extract_copy_variables(email_obj: dict) -> dict:
@@ -333,8 +340,13 @@ def main() -> None:
         output_dir = Path(args.output_dir).resolve()
     else:
         stem = copy_path.stem
-        campaign_slug = stem[:-5] if stem.endswith("-copy") else stem
-        output_dir = repo_root / "campaign-orchestration" / campaign_slug / "rendered"
+        if stem == "copy":
+            # File follows the projects/<slug>/copy.json convention — use parent dir as slug.
+            campaign_slug = copy_path.parent.name
+            output_dir = repo_root / "projects" / campaign_slug / "templates" / "rendered"
+        else:
+            campaign_slug = stem[:-5] if stem.endswith("-copy") else stem
+            output_dir = repo_root / "campaign-orchestration" / campaign_slug / "rendered"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load copy data.
