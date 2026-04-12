@@ -35,9 +35,9 @@ the brief first.
 Read in this order before writing a single word:
 
 1. **The campaign brief** (`campaign-strategy/<slug>-brief.md`)
-   Locate the template reference in Section 10 (`email-design/03-pages/<name>/`).
-   If no template reference is set, ask the user which design to use before
-   continuing.
+   Locate the template path for this email in Section 7.2 (Design template
+   status). If the row for this email shows Copy unblocked? = No, stop and
+   ask the user to resolve the template before continuing.
 
 2. **The page schema** (`email-design/03-pages/<template-name>/<template-name>.schema.json`)
    This is the definitive field list. Every copy field you write must correspond
@@ -98,7 +98,7 @@ Example classification using `starter-single-column.schema.json`:
 ## Process
 
 ### Step 1 · Resolve the template
-From brief Section 10, find the template reference. Navigate to:
+From brief Section 7.2, find the Design template path for this email. Navigate to:
 ```
 email-design/03-pages/<template-name>/<template-name>.schema.json
 ```
@@ -127,19 +127,36 @@ For each **copy** field identified in Step 1, write the value:
 - Keep field values self-contained — each value will be dropped directly into
   the template `{{variable}}` without surrounding context
 
-Format output as a named field block so it can be directly applied to the
-template:
+Output a single JSON object. Property names must exactly match the schema
+property names. Subject line is the only field with multiple options — represent
+it as an object with an `options` array and a `recommended` string. All other
+copy fields are plain strings.
+
+```json
+{
+  "email": 1,
+  "template": "email-design/03-pages/<template-name>/",
+  "subject_line": {
+    "options": [
+      "Option A — [subject line]",
+      "Option B — [subject line]",
+      "Option C — [subject line]"
+    ],
+    "recommended": "Option A — [subject line]"
+  },
+  "preview_text": "[preview text, ≤ 90 chars]",
+  "headline": "[headline copy]",
+  "body_copy": "[body copy]",
+  "cta_label": "[CTA label]",
+  "logo_alt": "[alt text]",
+  "hero_alt": "[alt text]",
+  "company_name": "[legal entity name]",
+  "company_address": "[mailing address]"
+}
 ```
-subject_line:    [recommended subject line]
-preview_text:    [preview text]
-headline:        [headline copy]
-body_copy:       [body copy]
-cta_label:       [CTA label]
-logo_alt:        [alt text]
-hero_alt:        [alt text]
-company_name:    [confirm or provide]
-company_address: [confirm or provide]
-```
+
+Include only the copy fields identified in Step 1 plus `email`, `template`,
+`subject_line`, and `preview_text`. Do not include URI fields or design fields.
 
 ### Step 5 · Self-review checklist
 - [ ] Every required schema field (per `"required"` array) has a value
@@ -162,12 +179,12 @@ archived piece.
 
 | Output | Delivered as | Saved to |
 |---|---|---|
-| Subject line options (3–5) + recommended | Inline in response | — |
-| Named copy block (one value per schema field) | Inline in response | — |
+| JSON copy object (one per email) | Inline in response | — |
 | Post-campaign archive entry | — | `subject-line-swipes.md` or `copy-examples/` |
 
-Copy is delivered inline so the designer or builder can paste values directly
-into the template. It is only saved to this folder after the campaign completes.
+Copy is delivered as a JSON object so values can be applied programmatically or
+pasted directly into the template by field name. It is only saved to this folder
+after the campaign completes.
 
 ---
 
@@ -177,7 +194,7 @@ into the template. It is only saved to this folder after the campaign completes.
   output must exactly match property names in the schema.
 - Never write copy for URI fields (`format: uri`).
 - Never invent product claims, pricing, or legal terms not present in the brief.
-- If the brief's Section 10 has no template reference, ask before proceeding.
+- If the brief's Section 7.2 has no template path for this email, ask before proceeding.
 - If the brand voice guide and the brief conflict on tone or language, flag it —
   do not silently choose one over the other.
 - Do not archive copy that was not actually sent or was rejected by the team.
