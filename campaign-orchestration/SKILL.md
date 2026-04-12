@@ -2,8 +2,8 @@
 
 Produces the artifacts needed to launch a campaign. Run subtasks in whatever order fits your production state.
 
-**Inputs:** an approved brief in `campaign-strategy/`, and a copy JSON in `copywriting-archive/` for subtask 4.
-**Outputs:** land in `campaign-orchestration/<slug>/`.
+**Inputs:** an approved brief at `projects/<slug>/campaign-strategy-brief.md`, and a copy JSON in `copywriting-archive/` for subtask 4.
+**Outputs:** land in `projects/<slug>/`.
 
 **Required reference — read before any subtask:**
 `campaign-orchestration/personalization-data-catalog.md` — the authoritative
@@ -19,7 +19,7 @@ inventing a field name.
 
 Read the brief (sections 4 and 7), `suppression-rules.md`, `frequency-capping-rules.md`, and `channel-priority-rules.md`. Map each email in the series to a send node: trigger, audience after suppression, branching logic, and exit conditions.
 
-Write the result to `campaign-orchestration/<slug>/workflow.md` as a single Python code block. Use `send()` calls for each node, `if/else` per contact for branching, `# BLOCKER:` comments above any send that has an unmet dependency, UTMs as inline `cta_url=` arguments, and `# comment sections` for suppression, frequency cap, attribution, and approvals. No tables. No ASCII diagrams.
+Write the result to `projects/<slug>/orchestration.md` as a single Python code block. Use `send()` calls for each node, `if/else` per contact for branching, `# BLOCKER:` comments above any send that has an unmet dependency, UTMs as inline `cta_url=` arguments, and `# comment sections` for suppression, frequency cap, attribution, and approvals. No tables. No ASCII diagrams.
 
 ```python
 segment = crm.query(inclusion_criteria, exclude=[...])
@@ -79,7 +79,7 @@ Read the brief (sections 8 and 13). Build UTM strings per email and confirm the 
 
 ## Subtask 4 · Render ESP-Ready HTML
 
-Run `python campaign-orchestration/scripts/render-email-html.py copywriting-archive/<slug>-copy.json`. The script reads each email's template and schema, substitutes `{{variables}}` with copy values, and warns on unresolved URI fields. Output goes to `campaign-orchestration/<slug>/rendered/` (gitignored).
+Run `python campaign-orchestration/scripts/render-email-html.py copywriting-archive/<slug>-copy.json`. The script reads each email's template and schema, substitutes `{{variables}}` with copy values, and warns on unresolved URI fields. Output goes to `projects/<slug>/templates/rendered/` (gitignored).
 
 ---
 

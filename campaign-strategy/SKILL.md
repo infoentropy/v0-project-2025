@@ -94,15 +94,17 @@ Before saving, confirm:
 ### Step 5 · Save the output
 Save the completed brief as:
 ```
-campaign-strategy/<campaign-slug>-brief.md
+projects/<campaign-slug>/campaign-strategy-brief.md
 ```
 
-Use a descriptive slug: `q3-re-engagement-brief.md`, `summer-launch-brief.md`.
-Do not use dates in the file name unless maintaining versioned snapshots.
+The file name is always `campaign-strategy-brief.md`. The campaign slug is the
+folder name — use a descriptive slug: `q3-re-engagement`, `summer-launch`.
+Do not use dates in the slug unless maintaining versioned snapshots.
+Create the `projects/<campaign-slug>/` folder if it does not already exist.
 
 ### Step 6 · Notify downstream skills
 After saving, summarize for the user:
-- Brief file path
+- Brief file path (`projects/<slug>/campaign-strategy-brief.md`)
 - Primary goal and primary metric
 - Audience segment name and estimated size
 - Number of emails in the series
@@ -115,7 +117,7 @@ After saving, summarize for the user:
 
 | Output | Location | Format |
 |---|---|---|
-| Campaign brief | `campaign-strategy/<slug>-brief.md` | Filled-in copy of `email-strategy-brief-template.md` |
+| Campaign brief | `projects/<slug>/campaign-strategy-brief.md` | Filled-in copy of `campaign-strategy/email-strategy-brief-template.md` |
 
 ---
 
@@ -127,4 +129,4 @@ After saving, summarize for the user:
 - If a brief already exists for the campaign, update it in place rather than
   creating a duplicate.
 - Completed post-campaign briefs (Section 17 filled in) must be moved to
-  `campaign-strategy/_archive/` rather than deleted.
+  `projects/<slug>/_archive/` rather than deleted.

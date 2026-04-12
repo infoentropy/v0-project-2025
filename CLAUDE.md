@@ -21,10 +21,15 @@ thinking evolves. Skills always reflect whatever is currently in this repo.
 
 ```
 .
-├── campaign-strategy/       # Strategic briefs, audience frameworks, goals
-├── email-design/            # Layout templates, design guidelines, component patterns
+├── projects/                # One folder per campaign — all per-project outputs land here
+│   └── (slug)/
+│       ├── campaign-strategy-brief.md
+│       ├── orchestration.md
+│       └── templates/
+├── campaign-strategy/       # Global templates and reference docs for the strategy skill
+├── email-design/            # Global layout templates, design guidelines, component patterns
 ├── copywriting-archive/     # Approved copy examples, tone guides, swipe files
-├── campaign-orchestration/  # Workflow definitions, sequencing rules, channel logic
+├── campaign-orchestration/  # Global scripts and reference docs for the orchestration skill
 └── CLAUDE.md                # This file
 ```
 
@@ -32,13 +37,27 @@ thinking evolves. Skills always reflect whatever is currently in this repo.
 
 ## Folder Purposes
 
-### `campaign-strategy/`
-Documents that define the *why* and *what* of campaigns.
+### `projects/`
+One folder per campaign. All skill outputs that are specific to a campaign land
+here so every artifact for a given project is in one place.
 
-- Target audience personas and segmentation rules
-- Campaign goals and success metrics
-- Messaging hierarchies (primary, secondary, tertiary messages)
-- Seasonal or product-launch strategy briefs
+```
+projects/<slug>/
+├── campaign-strategy-brief.md   ← produced by Campaign Strategy skill
+├── orchestration.md              ← produced by Campaign Orchestration skill
+└── templates/
+    └── rendered/                 ← rendered ESP-ready HTML (gitignored)
+```
+
+Use the campaign slug as the folder name: `spring-reengagement-2026`,
+`q4-product-launch`. When a campaign is complete, move the whole folder to
+`projects/_archive/<slug>/`.
+
+### `campaign-strategy/`
+Global templates and reference documents used by the Campaign Strategy skill.
+
+- `email-strategy-brief-template.md` — canonical brief structure (do not edit output here)
+- Audience personas and segmentation reference docs
 - Competitive positioning notes
 
 ### `email-design/`
@@ -61,13 +80,14 @@ A reference library of approved, high-performing copy.
 - Legal or compliance copy requirements
 
 ### `campaign-orchestration/`
-Documents that define *how* campaigns run end-to-end.
+Global scripts and reference documents used by the Campaign Orchestration skill.
 
-- Send sequence logic (triggers, delays, branching conditions)
-- Channel priority rules (email vs. SMS vs. push)
-- Suppression and frequency capping rules
-- A/B test configuration standards
-- Integration touchpoints with other tools or platforms
+- `scripts/` — rendering and utility scripts
+- `personalization-data-catalog.md` — authoritative list of contact fields and events
+- Channel priority rules, suppression rules, frequency capping rules, A/B test standards
+
+Per-campaign workflow output (`orchestration.md`, rendered HTML) goes to
+`projects/<slug>/`, not here.
 
 ---
 
@@ -89,17 +109,16 @@ Documents that define *how* campaigns run end-to-end.
 
 Each Claude skill is scoped to one or more folders:
 
-| Skill | Primary Folder(s) |
-|---|---|
-| Campaign Strategy | `campaign-strategy/` |
-| Email Design | `email-design/` |
-| Copywriting | `copywriting-archive/` |
-| Campaign Orchestration | `campaign-orchestration/` |
+| Skill | Reads from | Writes to |
+|---|---|---|
+| Campaign Strategy | `campaign-strategy/` (templates, personas) | `projects/<slug>/campaign-strategy-brief.md` |
+| Email Design | `email-design/` | `email-design/` (global — not project-specific) |
+| Copywriting | `copywriting-archive/` | `copywriting-archive/` |
+| Campaign Orchestration | `campaign-orchestration/` (scripts, rules), `projects/<slug>/campaign-strategy-brief.md` | `projects/<slug>/orchestration.md`, `projects/<slug>/templates/` |
 
-Skills read the documents in their folder(s) to inform their outputs. When a
-skill produces something new (a strategy brief, a copy block, a workflow), the
-result should be saved back into the appropriate folder so it becomes part of
-the shared knowledge base.
+Skills read their reference folder(s) for global rules and templates. Campaign-
+specific outputs always land in `projects/<slug>/` so every artifact for a
+project is co-located.
 
 ---
 
