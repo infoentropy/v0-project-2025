@@ -22,8 +22,12 @@ def subtask_1_build_send_sequence(brief):
             exit_conditions # purchase, unsub, end of series
         }
 
-    draw_sequence_diagram()  # ASCII flow: nodes + branches
-
+    # workflow.md is a single python code block — no tables, no ASCII diagrams
+    # nodes as send() calls with inline args
+    # branching as if/else per contact
+    # blockers as # BLOCKER: comments above the send they gate
+    # UTMs as cta_url= args on send()
+    # suppression, freq cap, attribution, approvals as # comment sections
     write("campaign-orchestration/<slug>/workflow.md")
 
 
