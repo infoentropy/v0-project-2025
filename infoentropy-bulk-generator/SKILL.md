@@ -1,3 +1,8 @@
+---
+name: infoentropy-bulk-generator
+description: Use this skill to quickly bulk create email files to be uploaded to your marketing platform (Email, Push Notifications, Web Pages, etc.). This is a operations/technical skill.
+---
+
 # Skill: Campaign Orchestration
 
 Produces the artifacts needed to launch a campaign. Run subtasks in whatever order fits your production state.

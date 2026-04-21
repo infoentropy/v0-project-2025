@@ -1,3 +1,8 @@
+---
+name: infoentropy-email-designer
+description: Use this skill to build bulk-generator-compatible emails filled by the strategist. This is a technical skill to define Data Fields, and produce HTML. This is an operations/technical skill.
+---
+
 # Skill: Email Design
 
 **Folder:** `email-design/`
