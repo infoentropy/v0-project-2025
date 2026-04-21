@@ -1,8 +1,8 @@
 # Skill: Campaign Strategy
 
-**Folder:** `campaign-strategy/`
+**Folder:** `infoentropy-strategy/`
 **Depends on:** nothing — this skill runs first
-**Feeds into:** `copywriting-archive/`, `email-design/`, `campaign-orchestration/`
+**Feeds into:** `infoentropy-email-designer/`, `infoentropy-bulk-generator/`
 
 ---
 
@@ -34,12 +34,10 @@ If any required input is missing, ask for it before proceeding.
 
 ## Context Documents — Read These First
 
-Before producing any output, read the following files in this folder:
+Before producing any output, read:
 
-1. `email-strategy-brief-template.md` — the canonical brief structure; every
-   output must follow this template exactly.
-2. Any existing `*-brief.md` files in this folder — scan for audience segments,
-   messaging patterns, and prior goals that may inform the current brief.
+1. `infoentropy-strategy/assets/email-strategy-brief-template.md` — the canonical brief structure; every output must follow this template exactly.
+2. Any existing `projects/*/campaign-strategy-brief.md` files (if the `projects/` folder exists) — scan for audience segments, messaging patterns, and prior goals that may inform the current brief.
 
 Do not invent audience segments, brand rules, or channel logic that are not
 documented here or provided by the user. Flag the gap instead.
@@ -53,7 +51,7 @@ Confirm with the user: single email or a series? Promotional or lifecycle?
 Any hard constraints (legal copy, suppression rules, budget)?
 
 ### Step 2 · Populate the brief
-Duplicate `email-strategy-brief-template.md` and fill in every section.
+Duplicate `infoentropy-strategy/assets/email-strategy-brief-template.md` and fill in every section.
 - Write "TBD — Owner: [name], Due: [date]" for any unknown field.
 - Do not leave any field blank.
 - Sections 6 (Messaging Hierarchy) and 7 (Email Series Plan) are the highest-
@@ -64,11 +62,11 @@ For each email in the series (Section 7), assign a design template before the
 brief can be approved for copywriting. This is a required gate — copywriting
 cannot start without it.
 
-1. List the available templates by scanning `email-design/03-pages/`.
+1. List the available templates by scanning `infoentropy-email-designer/assets/email-pages/`.
 2. For each email in Section 7, pick the template whose layout best fits the
    email's goal and content type (hero-led, product grid, plain text, etc.).
 3. Fill in the **Design template** column in the Section 7 series plan table
-   with the full path: `email-design/03-pages/<template-name>/`
+   with the full path: `infoentropy-email-designer/assets/email-pages/<template-name>/`
 4. Fill in Section 7.2 (Design template status):
    - Set **Template status** to `Ready` if the template folder contains all
      three required files (`.md`, `.html`, `.schema.json`).
@@ -117,7 +115,7 @@ After saving, summarize for the user:
 
 | Output | Location | Format |
 |---|---|---|
-| Campaign brief | `projects/<slug>/campaign-strategy-brief.md` | Filled-in copy of `campaign-strategy/email-strategy-brief-template.md` |
+| Campaign brief | `projects/<slug>/campaign-strategy-brief.md` | Filled-in copy of `infoentropy-strategy/assets/email-strategy-brief-template.md` |
 
 ---
 

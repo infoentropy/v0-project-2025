@@ -1,69 +1,102 @@
 # v0-project-2025
 
-A shared document library for Claude skills. Each folder is scoped to a skill
-domain and contains the source-of-truth documents that skills read to do their
-work — strategy briefs, design templates, copy archives, and orchestration logic.
+A collection of Claude Skills for producing marketing email campaigns. Each
+top-level folder is one skill and contains a `SKILL.md` at its root, plus
+reference material the skill reads to do its work.
 
 ---
 
-## Folders
+## Skills
 
-| Folder | Skill | What lives here |
+| Folder | Skill name | What it does |
 |---|---|---|
-| `email-design/` | Email Design | Mockup parsing workflow, HTML components, assembled page templates |
-| `campaign-strategy/` | Campaign Strategy | Audience personas, campaign briefs, messaging hierarchies |
-| `copywriting-archive/` | Copywriting | Subject line swipes, body copy examples, brand voice guide |
-| `campaign-orchestration/` | Campaign Orchestration | Send sequences, channel rules, suppression logic, A/B standards |
+| `infoentropy-strategy/` | `infoentropy-campaign-strategy` | Strategy briefs, audience personas, messaging hierarchy, copywriting reference |
+| `infoentropy-email-designer/` | `infoentropy-email-designer` | Parse mockups → HTML components → assembled page templates |
+| `infoentropy-bulk-generator/` | `infoentropy-bulk-generator` | Build send sequence, A/B tests, render ESP-ready HTML |
+
+Each `SKILL.md` begins with YAML frontmatter (`name`, `description`). The
+`description` is the trigger text Claude uses to decide when to invoke the
+skill.
 
 ---
 
-## email-design Structure
+## The `projects/<slug>/` Pattern
 
-`email-design/` is the most developed folder and establishes the patterns
-the other folders will follow as they are built out.
+Campaign-specific outputs from every skill land in a shared `projects/<slug>/`
+folder. Reference material that does not change per campaign stays in the
+skill's own folder.
 
 ```
-email-design/
-├── 01-mockups/                       # Phase 1 — Design parsing workflow
-│   ├── parsing-guide.md              # How the skill analyzes a PNG or Figma input
-│   ├── component-output-template.md  # Exact format for generated component files
-│   └── processed-log.md             # Log of every design processed
-│
-├── 02-components/                    # Phase 2 — Reusable HTML components
-│   └── <component-name>/
-│       ├── <component-name>.md       # Purpose, schema table, usage notes
-│       ├── <component-name>.html     # Raw HTML with {{variable}} tokens
-│       └── <component-name>.schema.json
-│
-└── 03-pages/                         # Phase 3 — Assembled email templates
-    └── <page-name>/
-        ├── <page-name>.md            # Metadata, component manifest, variable table
-        ├── <page-name>.html          # Full send-ready HTML document
-        └── <page-name>.schema.json
+projects/<slug>/
+├── campaign-strategy-brief.md   ← infoentropy-strategy
+├── copy.json                     ← copywriting output
+├── orchestration.md              ← infoentropy-bulk-generator
+└── templates/
+    └── rendered/                 ← render-email-html.py output (gitignored)
 ```
+
+Use the campaign slug as the folder name (e.g. `spring-reengagement-2026`,
+`q4-product-launch`).
 
 ---
 
-## How Skills Use This Repo
+## Typical Workflow
 
-1. **Parse a design** — provide a PNG or Figma link to the Email Design skill.
-   It reads `01-mockups/parsing-guide.md`, extracts components, and writes them
-   to `02-components/`.
+1. **Write the brief** — invoke `infoentropy-campaign-strategy` to produce
+   `projects/<slug>/campaign-strategy-brief.md`.
+2. **Design the email** — invoke `infoentropy-email-designer` with a PNG or
+   Figma link. It extracts components into `infoentropy-email-designer/assets/`
+   and assembles page templates. Templates are global, not project-specific.
+3. **Write copy** — produce `projects/<slug>/copy.json` following the schema of
+   the chosen page template.
+4. **Orchestrate and render** — invoke `infoentropy-bulk-generator` to build
+   `projects/<slug>/orchestration.md` and run the renderer:
 
-2. **Build a page** — assemble components from `02-components/` into a new
-   folder under `03-pages/`. Check `03-pages/page-output-template.md` for the
-   required structure.
+   ```bash
+   python infoentropy-bulk-generator/scripts/render-email-html.py projects/<slug>/copy.json
+   ```
 
-3. **Write copy or strategy** — add documents to the relevant folder following
-   the conventions in `CLAUDE.md`.
+   Rendered HTML lands in `projects/<slug>/templates/rendered/` (gitignored).
+
+---
+
+## HTML Standards (enforced by `infoentropy-email-designer`)
+
+- Table-based layout only — no `<div>`, flexbox, or grid.
+- Max content width: 600 px.
+- All styles inline; no external stylesheets or `<style>` blocks.
+- Images require `alt` text and explicit `width` and `height` attributes.
+- Variables: `{{snake_case}}` double-curly tokens.
+- `role="presentation"` on layout tables.
+- Test targets: Gmail, Apple Mail, Outlook 2019+.
+
+### Component / Page Three-File Rule
+
+Every component and every page must have exactly three files with matching
+basenames:
+
+- `<name>.md` — purpose, schema table, usage notes
+- `<name>.html` — raw HTML with `{{tokens}}`
+- `<name>.schema.json` — JSON Schema draft-07 for the variables
+
+Variable names must be identical across all three files.
+
+---
+
+## Personalization Data
+
+Every `{{variable}}` in a template and every `contact.*` condition in an
+orchestration file must map to a field in
+`infoentropy-strategy/reference/personalization-data-catalog.md`. If a field is
+missing, add a `# BLOCKER:` comment rather than inventing one.
 
 ---
 
 ## Conventions
 
-- All files use `kebab-case` names with `.md`, `.html`, or `.schema.json` extensions.
-- One topic per file. Do not bundle unrelated content.
-- Commit messages describe what changed and why (not just "update").
-- Do not push to `main` directly — use a feature branch.
+- `kebab-case` filenames with `.md`, `.html`, or `.schema.json` extensions.
+- One topic per file.
+- Commit messages describe what changed and why.
+- Work on a feature branch; do not push to `main` directly.
 
-See `CLAUDE.md` for full conventions and AI assistant rules.
+See `CLAUDE.md` for guidance aimed at AI assistants working in this repo.
