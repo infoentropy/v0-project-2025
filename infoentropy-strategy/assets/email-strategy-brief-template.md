@@ -140,7 +140,8 @@ _Nice-to-have context, FAQs, or supporting details. Include only if space
 allows._
 
 ### 6.4 Tone and Voice
-_Reference the brand voice guide in `copywriting-archive/` and note any
+_Reference the brand voice guide at
+`infoentropy-strategy/reference/brand-voice-guide.md` and note any
 campaign-specific tone adjustments._
 
 - **Overall tone:**
@@ -155,9 +156,9 @@ campaign-specific tone adjustments._
 _Map every email in the campaign. Add or remove rows as needed._
 _The **Design template** column must be filled in before this brief is approved
 for copywriting. Each value must be a path to an existing folder under
-`email-design/03-pages/` (e.g. `email-design/03-pages/starter-single-column/`).
-If the right template does not exist yet, the Email Design skill must build it
-first._
+`infoentropy-email-designer/assets/email-pages/` (e.g.
+`infoentropy-email-designer/assets/email-pages/starter-single-column/`). If the
+right template does not exist yet, the Email Design skill must build it first._
 
 | # | Email name | Send trigger / timing | Audience | Subject line direction | Primary CTA | Goal | Design template |
 |---|---|---|---|---|---|---|---|
@@ -216,7 +217,8 @@ from this direction._
 
 ## 10. Design Direction
 
-_High-level creative direction only. Detailed specs live in `email-design/`.
+_High-level creative direction only. Detailed specs live in
+`infoentropy-email-designer/`.
 Per-email template assignments live in Section 7.2 — that is the authoritative
 source for copywriting. Use this section for campaign-wide mood and layout
 guidance only._

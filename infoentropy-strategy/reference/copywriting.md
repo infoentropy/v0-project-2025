@@ -38,23 +38,23 @@ Read in this order before writing a single word:
    status). If the row for this email shows Copy unblocked? = No, stop and
    ask the user to resolve the template before continuing.
 
-2. **The page schema** (`email-design/03-pages/<template-name>/<template-name>.schema.json`)
+2. **The page schema** (`infoentropy-email-designer/assets/email-pages/<template-name>/<template-name>.schema.json`)
    This is the definitive field list. Every copy field you write must correspond
    to a property in this schema.
 
-3. **The page manifest** (`email-design/03-pages/<template-name>/<template-name>.md`)
+3. **The page manifest** (`infoentropy-email-designer/assets/email-pages/<template-name>/<template-name>.md`)
    Scan the Variables Required table to understand the purpose of each field and
    confirm which are copy vs. asset fields.
 
-4. **`copywriting-archive/brand-voice-guide.md`**
+4. **`infoentropy-strategy/reference/brand-voice-guide.md`**
    Defines tone, words to use, words to avoid, and required compliance copy.
    This is the highest-authority document — never deviate from it without
    explicit user instruction.
 
-5. **`copywriting-archive/subject-line-swipes.md`** (if it exists)
+5. **`infoentropy-strategy/reference/subject-line-swipes.md`** (if it exists)
    Reference structural patterns for subject line options. Do not copy verbatim.
 
-6. **`copywriting-archive/copy-examples/`** (if populated)
+6. **`infoentropy-strategy/reference/copy-examples/`** (if populated)
    Approved body copy examples by tone. Read the file(s) matching the tone in
    brief Section 6.4.
 
@@ -99,7 +99,7 @@ Example classification using `starter-single-column.schema.json`:
 ### Step 1 · Resolve the template
 From brief Section 7.2, find the Design template path for this email. Navigate to:
 ```
-email-design/03-pages/<template-name>/<template-name>.schema.json
+infoentropy-email-designer/assets/email-pages/<template-name>/<template-name>.schema.json
 ```
 Read the schema. List every property and classify each as **copy** or **skip**
 using the rules above.
@@ -115,7 +115,7 @@ From the brief extract:
 ### Step 3 · Write subject line and preview text
 These are always required. Write 3–5 options:
 - Match the angle from brief Section 9
-- Check every option against the avoid list in `copywriting-archive/brand-voice-guide.md`
+- Check every option against the avoid list in `infoentropy-strategy/reference/brand-voice-guide.md`
 - Verify character counts: subject ≤ 50 chars, preview text ≤ 90 chars
 - Mark the recommended option
 
@@ -134,7 +134,7 @@ All other copy fields are plain strings.
 ```json
 {
   "email": 1,
-  "template": "email-design/03-pages/<template-name>/",
+  "template": "infoentropy-email-designer/assets/email-pages/<template-name>/",
   "subject_line": {
     "options": [
       "Option A — [subject line]",
@@ -162,7 +162,7 @@ for this project, merge the new email object into it rather than overwriting.
 
 ### Step 5 · Self-review checklist
 - [ ] Every required schema field (per `"required"` array) has a value
-- [ ] No words from the avoid list in `copywriting-archive/brand-voice-guide.md`
+- [ ] No words from the avoid list in `infoentropy-strategy/reference/brand-voice-guide.md`
 - [ ] Subject line ≤ 50 characters
 - [ ] Preview text ≤ 90 characters
 - [ ] One CTA label — no competing calls to action
@@ -172,9 +172,10 @@ for this project, merge the new email object into it rather than overwriting.
 
 ### Step 6 · Archive strong copy
 After the campaign completes and results are known, save high-performing
-subject lines to `copywriting-archive/subject-line-swipes.md` and notable body
-copy to the appropriate file in `copywriting-archive/copy-examples/`. Note the
-metric result alongside each archived piece.
+subject lines to `infoentropy-strategy/reference/subject-line-swipes.md` and
+notable body copy to the appropriate file in
+`infoentropy-strategy/reference/copy-examples/`. Note the metric result
+alongside each archived piece.
 
 ---
 
@@ -183,7 +184,7 @@ metric result alongside each archived piece.
 | Output | Location |
 |---|---|
 | Copy JSON (one object per email) | `projects/<slug>/copy.json` |
-| Post-campaign archive entries | `copywriting-archive/subject-line-swipes.md` or `copywriting-archive/copy-examples/` |
+| Post-campaign archive entries | `infoentropy-strategy/reference/subject-line-swipes.md` or `infoentropy-strategy/reference/copy-examples/` |
 
 The copy JSON is saved to the project folder so the Campaign Orchestration skill
 can read it directly when rendering ESP-ready HTML.
